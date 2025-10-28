@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import { useState } from 'react'
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
+// import './App.css'
+
+// function App() {
+//  const [count, setCount] = useState(0)
+
+//  return (
+//    <>
+//      <div>
+//        <a href="https://vite.dev" target="_blank">
+//          <img src={viteLogo} className="logo" alt="Vite logo" />
+//        </a>
+//        <a href="https://react.dev" target="_blank">
+//          <img src={reactLogo} className="logo react" alt="React logo" />
+//        </a>
+//      </div>
+//      <h1>Vite + React</h1>
+//      <div className="card">
+//        <button onClick={() => setCount((count) => count + 1)}>
+//          count is {count}
+//        </button>
+//        <p>
+//          Edit <code>src/App.jsx</code> and save to test HMR
+//        </p>
+//      </div>
+//      <p className="read-the-docs">
+//        Click on the Vite and React logos to learn more
+//      </p>
+//    </>
+//  )
+// }
+
+// export default App
+
+import React, { useState } from "react";
+import Splash from "./components/Splash";
+import SignIn from "./components/SignIn";
+import Dashboard from "./components/Dashboard";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [showSplash, setShowSplash] = useState(true);
+  const [username, setUsername] = useState(""); // store the entered username
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+  if (showSplash) {
+    return <Splash onFinish={() => setShowSplash(false)} />;
+  }
+
+  // If username is empty, show Sign In screen
+  if (!username) {
+    return <SignIn onSignIn={(name) => setUsername(name)} />;
+  }
+
+  // Once username is set, show Dashboard
+  return <Dashboard user={username} />;
 }
 
-export default App
+export default App;
