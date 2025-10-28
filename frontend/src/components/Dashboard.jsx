@@ -23,7 +23,7 @@ const Dashboard = ({ user = "User" }) => {
     };
 
     return (
-        <div className="min-h-screen bg-[#2C3539] text-white font-sans p-6">
+        <div className="w-screen h-screen m-0 p-0 overflow-x-hidden bg-[#2C3539] text-[#D9DDDC] font-sans p-6 flex flex-col">
             {/* Top bar */}
             
             <div className="flex items-center justify between mb-8">
@@ -59,7 +59,7 @@ const Dashboard = ({ user = "User" }) => {
 
             {/* Sections */}
 
-            <div className="space-y-6">
+            <div className="space-y-6 flex-1 overflow-y-auto">
                 {Object.entries(sectionsData).map(([section, items]) => (
                     <div
                         key={section}

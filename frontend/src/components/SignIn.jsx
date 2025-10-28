@@ -15,10 +15,10 @@ const SignIn = ({ onSignIn }) => {
     };
 
     return (
-        <div className="w-screen h-screen flex flex-col items-center bg-[#2C3539] p-4">
+        <div className="w-screen h-screen m-0 p-0 flex flex-col items-center justify-center bg-[#2C3539] overflow-x-hidden">
             <img src={logo} alt="Logo" className="w-32 h-32 mt-8 mb-6" />
 
-            <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-sm">
+            <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-sm px-4">
                 <input
                     type="text"
                     placeholder="Username or Email"
