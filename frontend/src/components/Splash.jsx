@@ -23,15 +23,15 @@ const Splash = ({ onFinish }) => {
     }, [onFinish]);
 
     return (
-        <div className="w-screen h-screen flex flex-col justify-center items-center bg-[#222A32]">
+        <div className="w-screen h-screen flex flex-col justify-center items-center bg-[#2C3539]">
             <img src={logo} alt="Logo" className="w-32 h-32 mb-8" />
-            <div className="w-64 bg-gray-700 rounded-full overflow-hidden">
+            <div className="w-64 bg-[#504B52] rounded-full overflow-hidden">
                 <div
-                    className="bg-blue-500 h-4"
+                    className="bg-[#EAAC59] h-4"
                     style={{ width: `${progress}%`, transition: "width 0.1s" }}
                 />
             </div>
-            <p className="text-white mt-2">Loading...</p>
+            <p className="text-[#D9DDDC] mt-2">Loading...</p>
         </div>
     );
 };

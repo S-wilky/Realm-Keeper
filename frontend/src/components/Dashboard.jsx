@@ -23,7 +23,7 @@ const Dashboard = ({ user = "User" }) => {
     };
 
     return (
-        <div className="min-h-screen bg-[#1C252C] text-white font-sans p-6">
+        <div className="min-h-screen bg-[#2C3539] text-white font-sans p-6">
             {/* Top bar */}
             
             <div className="flex items-center justify between mb-8">
@@ -51,7 +51,7 @@ const Dashboard = ({ user = "User" }) => {
 
                     {/* Hamburger icon */}
 
-                    <button className="bg-[#2D5BE3] p-3 rounded-full hover:bg-blue-500 transition">
+                    <button className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition">
                         <FiMenu size={20} />
                     </button>
                 </div>
@@ -63,7 +63,7 @@ const Dashboard = ({ user = "User" }) => {
                 {Object.entries(sectionsData).map(([section, items]) => (
                     <div
                         key={section}
-                        className="border border-gray-500 rounded-2xl bg-[#222A32] p-5"
+                        className="border border-gray-500 rounded-2xl bg-[#2C3539] p-5"
                     >
                         <div
                             className="flex justify-between items-center cursor-pointer"
@@ -71,7 +71,7 @@ const Dashboard = ({ user = "User" }) => {
                         >
                             <div className="flex items-center gap-2">
                                 <h2 className="text-xl font-semibold">{section}</h2>
-                                <span className="bg-[#E8A23B] text-black px-1.5 py-0.5 rounded-full text-sm flex items-center">
+                                <span className="bg-[#EAAC59] text-black px-1.5 py-0.5 rounded-full text-sm flex items-center">
                                     <FiPlus size={14} />
                                 </span>
                             </div>
@@ -85,7 +85,7 @@ const Dashboard = ({ user = "User" }) => {
                                 {items.map((item) => (
                                     <div
                                         key={item}
-                                        className="bg-[#2B333B] border border-gray-600 rounded-xl text-center py-4 text-gray-200 hover:bg-[#37414A] transition cursor-pointer"
+                                        className="bg-[#2C3539] border border-gray-600 rounded-xl text-center py-4 text-[#D9DDDC] hover:bg-[#37414A] transition cursor-pointer"
                                     >
                                         {item}
                                     </div>

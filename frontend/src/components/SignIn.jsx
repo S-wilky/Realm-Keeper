@@ -15,7 +15,7 @@ const SignIn = ({ onSignIn }) => {
     };
 
     return (
-        <div className="w-screen h-screen flex flex-col items-center bg-[#222A32] p-4">
+        <div className="w-screen h-screen flex flex-col items-center bg-[#2C3539] p-4">
             <img src={logo} alt="Logo" className="w-32 h-32 mt-8 mb-6" />
 
             <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-sm">
@@ -24,36 +24,36 @@ const SignIn = ({ onSignIn }) => {
                     placeholder="Username or Email"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="mb-4 p-3 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mb-4 p-3 rounded-md text-[#D9DDDC] bg-[#504B52] focus:outline-none focus:ring-2 focus:ring-[#EAAC59]"
                 />
                 <input
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mb-6 p-3 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mb-6 p-3 rounded-md text-[#D9DDDC] bg-[#504B52] focus:outline-none focus:ring-2 focus:ring-[#EAAC59]"
                 />
                 <button
                     type="submit"
-                    className="mb-4 bg-blue-500 text-white px-4 py-3 rounded-md hover:bg-blue-600"
+                    className="mb-4 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
                 >
                     Sign In
                 </button>
                 <button
                     type="button"
-                    className="mb-4 bg-red-500 text-white px-4 py-3 rounded-md hover:bg-red-600"
+                    className="mb-4 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
                 >
                     Sign in with Google
                 </button>
                 <button
                     type="button"
-                    className="mb-6 bg-blue-700 text-white px-4 py-3 rounded-md hover:bg-blue-800"
+                    className="mb-6 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
                 >
                     Sign in with Facebook
                 </button>
                 <button
                     type="button"
-                    className="text-white underline hover:text-gray-300"
+                    className="text-[#D9DDDC] underline hover:opacity-80 transition"
                 >
                     Create Account
                 </button>
