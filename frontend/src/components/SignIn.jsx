@@ -2,13 +2,22 @@
 
 import React, { useState } from "react";
 import logo from "../assets/RealmKeeperLogo.png";
+import supabase from "../services/supabase-client";
 
 const SignIn = ({ onSignIn }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const email = username;
+        const {error: signInError} = await supabase.auth.signInWithPassword({email, password})
+        if (signInError) {
+            console.error("Error signing up:", signInError.message);
+            return
+        }
+
         if (username.trim() !== "" && password.trim() !== "") {
             onSignIn(username); // pass username to App
         }

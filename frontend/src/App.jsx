@@ -11,7 +11,7 @@ function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [username, setUsername] = useState(""); // store the entered username
   const [session, setSession] = useState(null);
-
+  
   async function fetchSession() {
     const currentSession = supabase.auth.getSession()
     console.log(currentSession)
@@ -31,21 +31,20 @@ function App() {
     };
   }, [])
 
-  async function logout() {
-    await supabase.auth.signOut();
-  }
-
   if (showSplash) {
     return <Splash onFinish={() => setShowSplash(false)} />;
   }
 
-  // If username is empty, show Sign In screen
-  if (!username) {
-    return <SignIn onSignIn={(name) => setUsername(name)} />;
-  }
+  // // If username is empty, show Sign In screen
+  // if (!username) {
+  //   return <SignIn onSignIn={(name) => setUsername(name)} />;
+  // }
 
   // Once username is set, show Dashboard
-  return <Dashboard user={username} />;
+  return <>
+  {/* <SignIn /> */}
+  {session ? <Dashboard user={username} /> : <SignIn onSignIn={(name) => setUsername(name)} />}
+  </>
 }
 
 export default App;
