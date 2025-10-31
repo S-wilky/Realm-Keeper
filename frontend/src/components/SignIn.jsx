@@ -23,6 +23,23 @@ const SignIn = ({ onSignIn }) => {
         }
     };
 
+    // Client-side authentication with Google OAuth
+    // const handleGoogleLogin = async () => {
+    // const { data, error } = await supabase.auth.signInWithOAuth({
+    //     provider: 'google',
+    //     options: {
+    //     redirectTo: `${window.location.origin}/auth/callback`,
+    //     queryParams: {
+    //         access_type: 'offline',
+    //         prompt: 'consent'
+    //     }
+    //     }
+    // })
+    
+    // if (error) showErrorNotification(error.message)
+    // }
+
+
     return (
         <div className="w-screen h-screen m-0 p-0 flex flex-col items-center justify-center bg-[#2C3539] overflow-x-hidden">
             <img src={logo} alt="Logo" className="w-32 h-32 mt-8 mb-6" />
