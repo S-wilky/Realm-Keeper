@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import supabase from "./services/supabase-client";
 import Splash from "./components/Splash";
 import Dashboard from "./components/Dashboard";
 import LoginSignupForm from "./components/LoginSignupForm";
+import ChatbotScreen from "./components/ChatbotScreen";
 import "./App.css";
 import logo from "./assets/RealmKeeperLogoSVG1.svg";
 
@@ -45,13 +47,24 @@ function App() {
   }
 
   return (
-    <>
-      {session ? (
-        <Dashboard user={username} />
-       ) : (
-         <LoginSignupForm onSignIn={(name) => setUsername(name)} />
-        )}  
-    </>
+    <Router>
+      <Routes>
+        {/* Default route -- Dashboard or Login */}
+        <Route
+          path="/"
+          element={
+            session ? (
+              <Dashboard user={username} />
+            ) : (
+              <LoginSignupForm onSignIn={(name) => setUsername(name)} />
+            )
+          }
+        />
+
+        {/* Chatbot route */}
+        <Route path="/chatbot" element={<ChatbotScreen />} />
+      </Routes>
+    </Router>
   );
 }
 

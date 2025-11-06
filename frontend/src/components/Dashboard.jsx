@@ -1,6 +1,7 @@
 // Dashboard
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
 import logout from "../services/SessionManagement";
 
@@ -8,6 +9,7 @@ import PopupModal from "./PopupModal";
 import WorldCreationForm from "./WorldCreationForm";
 import CampaignCreationForm from "./CampaignCreationForm";
 import ArticleCreationForm from "./ArticleCreationForm";
+import ChatbotScreen from "./ChatbotScreen";
 
 const initialSectionsData = {
     Worlds: [],
@@ -19,6 +21,7 @@ const initialSectionsData = {
 };
 
 const Dashboard = ({ user = "User" }) => {
+    const navigate = useNavigate();
     const [openSections, setOpenSections] = useState({});
     const [sectionsDataState, setSectionsDataState] = useState(initialSectionsData);
     const [activePopup, setActivePopup] = useState(null);
@@ -53,6 +56,12 @@ const Dashboard = ({ user = "User" }) => {
                     <div
                         key={index}
                         className="bg-[#2C3539] border border-gray-600 rounded-xl text-center py-4 text-[#D9DDDC] hover:bg-[#37414A] transition cursor-pointer"
+                        onClick={() => {
+                            // Navigate to Chatbot page when clicking "Chatbot"
+                            if (section === "AI Chat" && item === "Chatbot") {
+                                navigate("/chatbot");
+                            }
+                        }}
                     >
                         {typeof item === "string" ? (
                             item
