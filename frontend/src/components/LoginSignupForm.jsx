@@ -22,7 +22,7 @@ function LoginSignupForm({ onSignIn }) {
         });
         if (signUpError) throw signUpError;
       } else {
-        const { data, error: signInError } =
+        const { error: signInError } =
           await supabase.auth.signInWithPassword({
             email,
             password,
@@ -37,6 +37,32 @@ function LoginSignupForm({ onSignIn }) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleGoogleSignin(e) {
+    e.preventDefault();
+    try {
+      const { error: GoogleSigninError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      })
+    if (GoogleSigninError) throw GoogleSigninError;
+    } catch (err) {
+      console.error("Auth error:", err.message);
+      setError(err.message);
+    }
+  }
+
+  async function handleDiscordSignin(e) {
+    e.preventDefault();
+    try {
+      const { error: DiscordSigninError } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+      })
+    if (DiscordSigninError) throw DiscordSigninError;
+    } catch (err) {
+      console.error("Auth error:", err.message);
+      setError(err.message);
     }
   }
 
@@ -84,14 +110,16 @@ function LoginSignupForm({ onSignIn }) {
             <button
               type="button"
               className="mb-4 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
+              onClick={handleGoogleSignin}
             >
               Sign in with Google
             </button>
             <button
               type="button"
               className="mb-6 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
+              onClick={handleDiscordSignin}
             >
-              Sign in with Facebook
+              Sign in with Discord
             </button>
           </>
         )}
