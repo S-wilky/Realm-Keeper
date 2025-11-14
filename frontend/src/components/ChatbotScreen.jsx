@@ -1,21 +1,34 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import generateQuest from "../../../ai-service/app/generateQuest";
 
 const ChatbotScreen = ({ questHooks = [], articles = [] }) => {
     const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const handleSend = async () => {
+        if (!input.trim()) //return;
+        {
+            const questData = await generateQuest();
+            console.log("Data retreived:", questData);
+            const quest = questData.quest_hook
+            console.log("Quest:", quest);
 
-        // Placeholder for backend integration:
-        // Shane's backend code will replace this
-        setMessages((prev) => [
+            setMessages((prev) => [
             ...prev,
-            { sender: "user", text: input },
-            { sender: "bot", text: "AI response will appear here." },
+            { sender: "user", text: "Use generate input function here." },
+            { sender: "bot", text: quest }, //quest.quest_hook
         ]);
+        } else {
+            // Placeholder for backend integration:
+            // Shane's backend code will replace this
+            setMessages((prev) => [
+                ...prev,
+                { sender: "user", text: input },
+                { sender: "bot", text: "AI response will appear here." },
+            ]);
+        }
 
         setInput("");
     };
