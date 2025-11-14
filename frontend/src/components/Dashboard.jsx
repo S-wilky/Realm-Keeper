@@ -1,5 +1,6 @@
 // Dashboard
 
+import { supabase } from "../services/supabase-client";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
@@ -26,6 +27,68 @@ const Dashboard = ({ user = "User" }) => {
     const [openSections, setOpenSections] = useState({});
     const [sectionsDataState, setSectionsDataState] = useState(initialSectionsData);
     const [activePopup, setActivePopup] = useState(null);
+
+    // Fetch saved popups from Supabase
+    useEffect(() => {
+        const fetchData = async () => {
+            const { data: worlds } = await supabase
+                .from("worlds")
+                .select("*")
+                .eq("user_id", user.id);
+            const { data: campaigns } = await supabase
+                .from("campaigns")
+                .select("*");
+            const { data: articles } = await supabase
+                .from("articles")
+                .select("*");
+
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Worlds: worlds || [],
+                Campaigns: campaigns || [],
+                Articles: articles || [],
+            }));
+        };
+
+        fetchData();
+
+        // Real time listeners
+        const worldListener = supabase
+            .from(`worlds:user_id=eq.${user.id}`)
+            .on("INSERT", (payload) => {
+                setSectionsDataState((prev) => ({
+                    ...prev,
+                    Worlds: [...prev.Worlds, payload.new],
+                }));
+            })
+            .subscribe();
+        
+        const campaignListener = supabase
+            .from("campaigns")
+            .on("INSERT", (payload) => {
+                setSectionsDataState((prev) => ({
+                    ...prev,
+                    Campaigns: [...prev.Campaigns, payload.new],
+                }));
+            })
+            .subscribe();
+
+        const articleListener = supabase
+            .from("articles")
+            .on("INSERT", (payload) => {
+                setSectionsDataState((prev) => ({
+                    ...prev,
+                    Articles: [...prev.Articles, payload.new],
+                }));
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeSubscription(worldListener);
+            supabase.removeSubscription(campaignListener);
+            supabase.removeSubscription(articleListener);
+        };
+    }, [user.id]);
 
     // Load saved sections from localStorage on mount
     useEffect(() => {
@@ -84,6 +147,41 @@ const Dashboard = ({ user = "User" }) => {
                 ))}
             </div>
         );
+    };
+
+    // Handlers with Supabase inserts
+    const handleCreateWorld = async (data) => {
+        await supabase.from("worlds").insert([
+            {
+                name: data.name,
+                description: data.description,
+                user_id: user.id,
+            },
+        ]);
+        handleClosePopup();
+    };
+
+    const handleCreateCampaign = async (data) => {
+        await supabase.from("campaigns").insert([
+            {
+                title: data.campaignName,
+                description: data.summary,
+                world_id: data.world_id,
+            },
+        ]);
+        handleClosePopup();
+    };
+
+    const handleCreateArticle = async (data) => {
+        await supabase.from("articles").insert([
+            {
+                title: data.title,
+                type: data.category,
+                body: data.content,
+                world_id: data.world_id || null,
+            },
+        ]);
+        handleClosePopup();
     };
 
     return (
@@ -161,36 +259,20 @@ const Dashboard = ({ user = "User" }) => {
             {activePopup && (
                 <PopupModal onClose={handleClosePopup}>
                     {activePopup === "world" && (
-                        <WorldCreationForm
-                            onClose={handleClosePopup}
-                            onCreate={(data) => 
-                                setSectionsDataState((prev) => ({
-                                    ...prev,
-                                    Worlds: [...prev.Worlds, { name: data.name, description: data.description }],
-                                }))
-                            }
-                        />
+                        <WorldCreationForm onClose={handleClosePopup} onCreate={handleCreateWorld} />
                     )}
                     {activePopup === "campaign" && (
                         <CampaignCreationForm
                             onClose={handleClosePopup}
-                            onCreate={(data) => 
-                                setSectionsDataState((prev) => ({
-                                    ...prev,
-                                    Campaigns: [...prev.Campaigns, { name: data.campaignName, world: data.world, summary: data.summary }],
-                                }))
-                            }
+                            onCreate={handleCreateCampaign}
+                            worlds={sectionsDataState.Worlds}
                         />
                     )}
                     {activePopup === "article" && (
                         <ArticleCreationForm
                             onClose={handleClosePopup}
-                            onCreate={(data) => 
-                                setSectionsDataState((prev) => ({
-                                    ...prev,
-                                    Articles: [...prev.Articles, { name: data.title, category: data.category, content: data.content }],
-                                }))
-                            }
+                            onCreate={handleCreateArticle}
+                            worlds={sectionsDataState.Worlds}
                         />
                     )}
                 </PopupModal>

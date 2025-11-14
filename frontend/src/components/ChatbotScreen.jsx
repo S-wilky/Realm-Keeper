@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import generateQuest from "../../../ai-service/app/generateQuest";
-<<<<<<< HEAD
 import { saveGeneratedQuest, linkQuestAndTemplate, deleteGeneratedQuest } from "../services/questQueries";
-=======
->>>>>>> develop
 
 const ChatbotScreen = () => {
     const navigate = useNavigate();
@@ -14,11 +11,6 @@ const ChatbotScreen = () => {
     const [loading, setLoading] = useState(false);
 
     const handleSend = async () => {
-<<<<<<< HEAD
-        if (!input.trim()) return;
-
-        const userMessage = input.trim();
-=======
         if (!input.trim()) //return;
         {
             const questData = await generateQuest();
@@ -40,7 +32,6 @@ const ChatbotScreen = () => {
                 { sender: "bot", text: "AI response will appear here." },
             ]);
         }
->>>>>>> develop
 
         // Add user message instantly
         
