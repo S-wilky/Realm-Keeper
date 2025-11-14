@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
-// import logout from "../services/SessionManagement";
+import logout from "../services/SessionManagement";
 import generateQuest from "../../../ai-service/app/generateQuest";
 
 import PopupModal from "./PopupModal";
@@ -92,6 +92,7 @@ const Dashboard = ({ user = "User" }) => {
             
             <div className="flex items-center justify-between mb-8">
                 <img
+                    onClick={logout}
                     src="/src/assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-20 h-20"
