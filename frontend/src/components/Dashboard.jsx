@@ -1,6 +1,6 @@
 // Dashboard
 
-import { supabase } from "../services/supabase-client";
+import supabase from "../services/supabase-client";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
@@ -27,9 +27,30 @@ const Dashboard = ({ user = "User" }) => {
     const [openSections, setOpenSections] = useState({});
     const [sectionsDataState, setSectionsDataState] = useState(initialSectionsData);
     const [activePopup, setActivePopup] = useState(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [username, setUsername] = useState("");
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const fetchUsername = async () => {
+            const { data, error } = await supabase
+                .from("profile")
+                .select("username")
+                .eq("profile_id", user.id)
+                .maybeSingle();
+
+            if (error) console.log("Dashboard fetch username error:", error);
+            if (data?.username) setUsername(data.username);
+        };
+
+        fetchUsername();
+    }, [user?.id]);
 
     // Fetch saved popups from Supabase
     useEffect(() => {
+        if (!user?.id) return;
+
         const fetchData = async () => {
             const { data: worlds } = await supabase
                 .from("worlds")
@@ -53,40 +74,52 @@ const Dashboard = ({ user = "User" }) => {
         fetchData();
 
         // Real time listeners
-        const worldListener = supabase
-            .from(`worlds:user_id=eq.${user.id}`)
-            .on("INSERT", (payload) => {
-                setSectionsDataState((prev) => ({
-                    ...prev,
-                    Worlds: [...prev.Worlds, payload.new],
-                }));
-            })
-            .subscribe();
-        
-        const campaignListener = supabase
-            .from("campaigns")
-            .on("INSERT", (payload) => {
-                setSectionsDataState((prev) => ({
-                    ...prev,
-                    Campaigns: [...prev.Campaigns, payload.new],
-                }));
-            })
+        const worldChannel = supabase
+            .channel("worlds_changes")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "realms", table: "worlds", filter: `user_id=eq.${user.id}` },
+                (payload) => {
+                    setSectionsDataState((prev) => ({
+                        ...prev,
+                        Worlds: [...prev.Worlds, payload.new],
+                    }));
+                }
+            )
             .subscribe();
 
-        const articleListener = supabase
-            .from("articles")
-            .on("INSERT", (payload) => {
-                setSectionsDataState((prev) => ({
-                    ...prev,
-                    Articles: [...prev.Articles, payload.new],
-                }));
-            })
+        const campaignChannel = supabase
+            .channel("campaigns_changes")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "realms", table: "campaigns" },
+                (payload) => {
+                    setSectionsDataState((prev) => ({
+                        ...prev,
+                        Campaigns: [...prev.Campaigns, payload.new],
+                    }));
+                }
+            )
+            .subscribe();
+
+        const articleChannel = supabase
+            .channel("articles_changes")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "realms", table: "articles" },
+                (payload) => {
+                    setSectionsDataState((prev) => ({
+                        ...prev,
+                        Articles: [...prev.Articles, payload.new],
+                    }));
+                }
+            )
             .subscribe();
 
         return () => {
-            supabase.removeSubscription(worldListener);
-            supabase.removeSubscription(campaignListener);
-            supabase.removeSubscription(articleListener);
+            supabase.removeChannel(worldChannel);
+            supabase.removeChannel(campaignChannel);
+            supabase.removeChannel(articleChannel);
         };
     }, [user.id]);
 
@@ -151,7 +184,7 @@ const Dashboard = ({ user = "User" }) => {
 
     // Handlers with Supabase inserts
     const handleCreateWorld = async (data) => {
-        await supabase.from("worlds").insert([
+        await supabase.from("realms.worlds").insert([
             {
                 name: data.name,
                 description: data.description,
@@ -162,7 +195,7 @@ const Dashboard = ({ user = "User" }) => {
     };
 
     const handleCreateCampaign = async (data) => {
-        await supabase.from("campaigns").insert([
+        await supabase.from("realms.campaigns").insert([
             {
                 title: data.campaignName,
                 description: data.summary,
@@ -173,7 +206,7 @@ const Dashboard = ({ user = "User" }) => {
     };
 
     const handleCreateArticle = async (data) => {
-        await supabase.from("articles").insert([
+        await supabase.from("realms.articles").insert([
             {
                 title: data.title,
                 type: data.category,
@@ -190,14 +223,14 @@ const Dashboard = ({ user = "User" }) => {
             
             <div className="flex items-center justify-between mb-8">
                 <img
-                    onClick={logout}
+                    //onClick={logout}
                     src="/src/assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-20 h-20"
                 />
 
                 <h1 className="text-3xl font-semibold text-center flex-grow">
-                    Welcome back, {user}!
+                    Welcome back, {username || user?.email}!
                 </h1>
 
                 <div className="flex items-center gap-3">
@@ -214,9 +247,30 @@ const Dashboard = ({ user = "User" }) => {
 
                     {/* Hamburger icon */}
 
-                    <button className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition" onClick={generateQuest /*logout*/}>
+                    <button 
+                        className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition" 
+                        // onClick={generateQuest /*logout*/}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
                         <FiMenu size={20} />
                     </button>
+
+                    {isMenuOpen && (
+                        <div className="absolute right-6 top-20 bg-[#2C3539] border-gray-600 rounded-lg shadow-lg p-4 flex flex-col gap-2 z-50">
+                            <button
+                                onClick={() => navigate("/profile")}
+                                className="text-[#D9DDDC] hover:text-white text-left"
+                            >
+                                Profile
+                            </button>
+                            <button
+                                onClick={logout}
+                                className="text-[#D9DDDC] hover:text-white text-left"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
