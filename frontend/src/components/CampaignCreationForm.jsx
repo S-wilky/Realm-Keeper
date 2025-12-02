@@ -2,19 +2,30 @@
 
 import React, { useState } from "react";
 
-const CampaignCreationForm = ({ onClose, onCreate }) => {
-    const [campaignName, setCampaignName] = useState("");
-    const [world, setWorld] = useState("");
-    const [summary, setSummary] = useState("");
+const CampaignCreationForm = ({ onClose, onCreate, worlds = [] }) => {
+    const [title, setTitle] = useState("");
+    const [worldId, setWorldId] = useState("");
+    const [description, setDescription] = useState("");
+    const [tags, setTags] = useState("");
 
     const isFormValid =
-        campaignName.trim() !== "" && world.trim() !== "" && summary.trim() !== "";
+        title.trim() !== "" && worldId.trim() !== "";
     
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!isFormValid) return;
 
-        onCreate({ campaignName, world, summary });
+        const tagsArray = tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0);
+
+        onCreate({ 
+            title,
+            description,
+            world_id: worldId,
+            tags: tagsArray, 
+        });
         onClose();
     };
 
@@ -24,8 +35,8 @@ const CampaignCreationForm = ({ onClose, onCreate }) => {
             <input
                 type="text"
                 placeholder="Campaign Name"
-                value={campaignName}
-                onChange={(e) => setCampaignName(e.target.value)}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 style={{
                     width: "100%",
                     padding: "8px",
@@ -36,12 +47,47 @@ const CampaignCreationForm = ({ onClose, onCreate }) => {
                     color: "#D9DDDC",
                 }}
                 required
+            />
+            <select 
+                value={worldId}
+                onChange={(e) => setWorldId(e.target.value)}
+                style={{
+                    width: "100%",
+                    padding: "8px",
+                    marginBottom: "10px",
+                    borderRadius: "6px",
+                    border: "1px solid #504B52",
+                    backgroundColor: "#2C3539",
+                    color: "#D9DDDC",
+                }}
+                required
+            >
+                <option value="">Select a World</option>
+                {worlds.map((w) => (
+                    <option key={w.world_id} value={w.world_id}>
+                        {w.name}
+                    </option>
+                ))}
+            </select>
+            <textarea
+                placeholder="Description (optional)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                style={{
+                    width: "100%",
+                    padding: "8px",
+                    marginBottom: "10px",
+                    borderRadius: "6px",
+                    border: "1px solid #504B52",
+                    backgroundColor: "#2C3539",
+                    color: "#D9DDDC",
+                }}
             />
             <input
                 type="text"
-                placeholder="Linked World"
-                value={world}
-                onChange={(e) => setWorld(e.target.value)}
+                placeholder="Tags (comma separated)"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
                 style={{
                     width: "100%",
                     padding: "8px",
@@ -51,22 +97,6 @@ const CampaignCreationForm = ({ onClose, onCreate }) => {
                     backgroundColor: "#2C3539",
                     color: "#D9DDDC",
                 }}
-                required
-            />
-            <textarea
-                placeholder="Short Summary"
-                value={summary}
-                onChange={(e) => setSummary(e.target.value)}
-                style={{
-                    width: "100%",
-                    padding: "8px",
-                    marginBottom: "10px",
-                    borderRadius: "6px",
-                    border: "1px solid #504B52",
-                    backgroundColor: "#2C3539",
-                    color: "#D9DDDC",
-                }}
-                required
             />
             <button
                 type="submit"

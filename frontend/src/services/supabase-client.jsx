@@ -7,6 +7,10 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
     db: {
         schema: "realms",
     },
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+    },
 });
 
 export default supabase;

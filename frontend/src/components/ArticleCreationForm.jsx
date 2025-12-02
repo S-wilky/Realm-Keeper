@@ -2,19 +2,25 @@
 
 import React, { useState } from "react";
 
-const ArticleCreationForm = ({ onClose, onCreate }) => {
+const ArticleCreationForm = ({ onClose, onCreate, worlds }) => {
     const [title, setTitle] = useState("");
-    const [category, setCategory] = useState("");
-    const [content, setContent] = useState("");
+    const [world_id, setWorldId] = useState("");
+    const [type, setType] = useState("");
+    const [body, setBody] = useState("");
 
     const isFormValid =
-        title.trim() !== "" && category.trim() !== "" && content.trim() !== "";
+        title.trim() !== "" && world_id.trim() !== "" && type.trim() !== "";
     
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!isFormValid) return;
 
-        onCreate({ title, category, content });
+        onCreate({ 
+            title, 
+            world_id,
+            type,
+            body 
+        });
         onClose();
     };
 
@@ -37,11 +43,9 @@ const ArticleCreationForm = ({ onClose, onCreate }) => {
                 }}
                 required
             />
-            <input
-                type="text"
-                placeholder="Category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+            <select
+                value={world_id}
+                onChange={(e) => setWorldId(e.target.value)}
                 style={{
                     width: "100%",
                     padding: "8px",
@@ -52,11 +56,19 @@ const ArticleCreationForm = ({ onClose, onCreate }) => {
                     color: "#D9DDDC",
                 }}
                 required
-            />
-            <textarea
-                placeholder="Content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+            >
+                <option value="">Select World</option>
+                {worlds.map((world) => (
+                    <option key={world.world_id} value={world.world_id}>
+                        {world.name}
+                    </option>
+                ))}
+            </select>
+            <input
+                type="text"
+                placeholder="Type"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
                 style={{
                     width: "100%",
                     padding: "8px",
@@ -67,6 +79,20 @@ const ArticleCreationForm = ({ onClose, onCreate }) => {
                     color: "#D9DDDC",
                 }}
                 required
+            />
+            <textarea
+                placeholder="Body (optional)"
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                style={{
+                    width: "100%",
+                    padding: "8px",
+                    marginBottom: "10px",
+                    borderRadius: "6px",
+                    border: "1px solid #504B52",
+                    backgroundColor: "#2C3539",
+                    color: "#D9DDDC",
+                }}
             />
             <button
                 type="submit"

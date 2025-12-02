@@ -31,6 +31,19 @@ const Dashboard = ({ user = "User" }) => {
     const [username, setUsername] = useState("");
 
     useEffect(() => {
+        const getSession = async () => {
+            const { data, error } = await supabase.auth.getSession();
+            if (error) {
+                console.log("Error getting session:", error);
+            } else {
+                console.log("Supabase session:", data.session);
+                console.log("Current UID", data.session?.user?.id);
+            }
+        };
+        getSession();
+    }, []);
+
+    useEffect(() => {
         if (!user?.id) return;
 
         const fetchUsername = async () => {
@@ -58,10 +71,12 @@ const Dashboard = ({ user = "User" }) => {
                 .eq("user_id", user.id);
             const { data: campaigns } = await supabase
                 .from("campaigns")
-                .select("*");
+                .select("*")
+                .eq("user_id", user.id);
             const { data: articles } = await supabase
                 .from("articles")
-                .select("*");
+                .select("*")
+                .eq("user_id", user.id);
 
             setSectionsDataState((prev) => ({
                 ...prev,
@@ -92,7 +107,7 @@ const Dashboard = ({ user = "User" }) => {
             .channel("campaigns_changes")
             .on(
                 "postgres_changes",
-                { event: "INSERT", schema: "realms", table: "campaigns" },
+                { event: "INSERT", schema: "realms", table: "campaigns", filter: `user_id=eq.${user.id}` },
                 (payload) => {
                     setSectionsDataState((prev) => ({
                         ...prev,
@@ -106,7 +121,7 @@ const Dashboard = ({ user = "User" }) => {
             .channel("articles_changes")
             .on(
                 "postgres_changes",
-                { event: "INSERT", schema: "realms", table: "articles" },
+                { event: "INSERT", schema: "realms", table: "articles", filter: `user_id=eq.${user.id}` },
                 (payload) => {
                     setSectionsDataState((prev) => ({
                         ...prev,
@@ -124,10 +139,10 @@ const Dashboard = ({ user = "User" }) => {
     }, [user.id]);
 
     // Load saved sections from localStorage on mount
-    useEffect(() => {
-        const saved = localStorage.getItem("sectionsData");
-        if (saved) setSectionsDataState(JSON.parse(saved));
-    }, []);
+    // useEffect(() => {
+    //     const saved = localStorage.getItem("sectionsData");
+    //     if (saved) setSectionsDataState(JSON.parse(saved));
+    // }, []);
 
     // Save to localStorage wheneber sectionsDataState changes
     useEffect(() => {
@@ -155,8 +170,15 @@ const Dashboard = ({ user = "User" }) => {
                         className="bg-[#2C3539] border border-gray-600 rounded-xl text-center py-4 text-[#D9DDDC] hover:bg-[#37414A] transition cursor-pointer"
                         onClick={() => {
                             // Navigate to Chatbot page when clicking "Chatbot"
+                            // Navigate to screens "World", "Campaigns", "Articles"
                             if (section === "AI Chat" && item === "Chatbot") {
                                 navigate("/chatbot");
+                            } else if (section === "Worlds") {
+                                navigate(`/world/${item.world_id}`, { state: item });
+                            } else if (section === "Campaigns") {
+                                navigate(`/campaign/${item.campaign_id}`, { state: item });
+                            } else if (section === "Articles") {
+                                navigate(`/article/${item.article_id}`, { state: item });
                             }
                         }}
                     >
@@ -164,7 +186,7 @@ const Dashboard = ({ user = "User" }) => {
                             item
                         ) : (
                             <div className="flex flex-col">
-                                <strong>{item.name || "Unnamed"}</strong>
+                                <strong>{item.name || item.title || "Unnamed"}</strong>
                                 {item.description && (
                                     <p className="text-sm text-gray-400 mt-1">{item.description}</p>
                                 )}
@@ -184,36 +206,71 @@ const Dashboard = ({ user = "User" }) => {
 
     // Handlers with Supabase inserts
     const handleCreateWorld = async (data) => {
-        await supabase.from("realms.worlds").insert([
-            {
-                name: data.name,
-                description: data.description,
-                user_id: user.id,
-            },
-        ]);
+        const { data: newWorld, error } = await supabase
+            .from("worlds")
+            .insert([{ 
+                name: data.name, 
+                description: data.description, 
+                user_id: user.id }])
+            .select()
+            .single();
+
+        if (!error) {
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Worlds: [...prev.Worlds, newWorld],
+            }));
+        }
+
         handleClosePopup();
     };
 
     const handleCreateCampaign = async (data) => {
-        await supabase.from("realms.campaigns").insert([
-            {
-                title: data.campaignName,
-                description: data.summary,
-                world_id: data.world_id,
-            },
-        ]);
+        if (!data.world_id) {
+            console.error("World must be selected for a campaign!");
+            return;
+        }
+
+        const { data: newCampaign, error } = await supabase
+            .from("campaigns")
+            .insert([{ 
+                title: data.title, 
+                description: data.description, 
+                world_id: data.world_id, 
+                user_id: user.id, 
+                tags: data.tags || [] }])
+            .select()
+            .single();
+
+        if (!error) {
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Campaigns: [...prev.Campaigns, newCampaign],
+            }));
+        }
+
         handleClosePopup();
     };
 
     const handleCreateArticle = async (data) => {
-        await supabase.from("realms.articles").insert([
-            {
-                title: data.title,
-                type: data.category,
-                body: data.content,
-                world_id: data.world_id || null,
-            },
-        ]);
+        const { data: newArticle, error } = await supabase
+            .from("articles")
+            .insert([{ 
+                title: data.title, 
+                type: data.type, 
+                body: data.body, 
+                world_id: data.world_id || null, 
+                user_id: user.id }])
+            .select()
+            .single();
+
+        if (!error) {
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Articles: [...prev.Articles, newArticle],
+            }));
+        }
+
         handleClosePopup();
     };
 
@@ -313,7 +370,9 @@ const Dashboard = ({ user = "User" }) => {
             {activePopup && (
                 <PopupModal onClose={handleClosePopup}>
                     {activePopup === "world" && (
-                        <WorldCreationForm onClose={handleClosePopup} onCreate={handleCreateWorld} />
+                        <WorldCreationForm 
+                            onClose={handleClosePopup} 
+                            onCreate={handleCreateWorld} />
                     )}
                     {activePopup === "campaign" && (
                         <CampaignCreationForm
