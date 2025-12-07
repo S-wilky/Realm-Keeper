@@ -62,7 +62,7 @@ const npcs = [
     tags: [""]
 }
 ,{
-//4
+//5
     occupation_name: "alchemist", 
     npc_type: "artisan",
     factions: ["Thieve's Guild"],
