@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
 import logout from "../services/SessionManagement";
-import generateQuest from "../../../ai-service/app/generateQuest"
+// import generateQuest from "../../../ai-service/app/generateQuest";
+import generateTrainingPairs from "../../../ai-service/app/quests/generateTrainingPairs";
 
 import PopupModal from "./PopupModal";
 import WorldCreationForm from "./WorldCreationForm";
@@ -37,6 +38,8 @@ const Dashboard = ({ user = "User" }) => {
     useEffect(() => {
         localStorage.setItem("sectionsData", JSON.stringify(sectionsDataState));
     }, [sectionsDataState]);
+
+    //Put event listener(s)
 
     const toggleSection = (section) => {
         setOpenSections((prev) => ({
@@ -116,7 +119,7 @@ const Dashboard = ({ user = "User" }) => {
 
                     {/* Hamburger icon */}
 
-                    <button className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition" onClick={generateQuest /*logout*/}>
+                    <button className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition" onClick={generateTrainingPairs}>
                         <FiMenu size={20} />
                     </button>
                 </div>

@@ -1,7 +1,6 @@
 {
   "name": "ai-service",
   "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,5 +12,8 @@
     "@supabase/supabase-js": "^2.81.1",
     "dotenv": "^17.2.3"
   },
-  "type": "module"
+  "type": "module",
+  "imports": {
+    "#utils/*": "./app/utils/*.js"
+  }
 }

@@ -1,36 +1,55 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import generateQuest from "../../../ai-service/app/generateQuest";
+import generateQuest from "../../../ai-service/app/quests/generateQuest";
+import generateText from "../utils/generateAIText";
+import generateInputPrompt from "../../../ai-service/app/quests/generateInputPrompt";
 
 const ChatbotScreen = ({ questHooks = [], articles = [] }) => {
     const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleSend = async () => {
+        setLoading(true);
         if (!input.trim()) //return;
         {
-            const questData = await generateQuest();
-            console.log("Data retreived:", questData);
-            const quest = questData.quest_hook
-            console.log("Quest:", quest);
+            //Generate a random input prompt
+            const promptData = await generateInputPrompt();
+            // console.log("Prompt Data retreived:", promptData);
+            const prompt = promptData.input_prompt;
+            // console.log("Prompt: ", prompt);
+
+            //Generate a random Quest
+            const questData = await generateQuest(promptData);
+            // console.log("Quest Data retreived:", questData);
+            const quest = questData.quest_hook;
+            // console.log("Quest:", quest);
 
             setMessages((prev) => [
             ...prev,
-            { sender: "user", text: "Use generate input function here." },
+            { sender: "user", text: prompt },
             { sender: "bot", text: quest }, //quest.quest_hook
         ]);
         } else {
             // Placeholder for backend integration:
-            // Shane's backend code will replace this
+            let response = "";
+            try {
+                response = await generateText(input);
+            } catch (err) {
+                console.error("Generation failed: ", err);
+                response = "Error: Could not generate text.";
+            }
+            
             setMessages((prev) => [
                 ...prev,
                 { sender: "user", text: input },
-                { sender: "bot", text: "AI response will appear here." },
+                { sender: "bot", text: response },
             ]);
         }
 
         setInput("");
+        setLoading(false);
     };
 
     return (
