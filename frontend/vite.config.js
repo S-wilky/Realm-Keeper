@@ -8,4 +8,15 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  optimizeDeps: {
+    exclude: ["../ai-service"]
+  },
+  server: {
+    fs: {
+      allow: [
+        "..",
+        "../ai-service"
+      ]
+    }
+  }
 })

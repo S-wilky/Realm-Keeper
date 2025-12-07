@@ -20,28 +20,38 @@ async function insertPromptTemplate(prompt) {
 const prompts = [
 {
 //0
-    input_prompt: "{verb} a quest that involves {enemy}s in the {biome}.", 
-    required_fields: ["verb","enemy","biome"]
+    input_prompt: "", 
+    required_fields: [""]
 }
+// ,{
+// //1
+//     input_prompt: "{verb} a quest that involves {enemy}s in the {location}.", 
+//     required_fields: ["verb","enemy","location"]
+// }
+// ,{
+// //2
+//     input_prompt: "{verb} a {quest type} quest.", 
+//     required_fields: ["verb","quest_type"]
+// }
+// ,{
+// //3
+//     input_prompt: "{verb} a {quest type} quest involving {faction}", 
+//     required_fields: ["verb","quest_type","faction"]
+// }
+// ,{
+// //4
+//     input_prompt: "{verb} a {quest type} quest in the {location}.", 
+//     required_fields: ["verb","quest_type","location"]
+// }
+// ,{
+// //5
+//     input_prompt: "{verb} a {quest type} quest that involves {enemy}s.", 
+//     required_fields: ["verb","quest_type","enemy"]
+// }
 ,{
-//1
-    input_prompt: "{verb} a {quest type} quest.", 
-    required_fields: ["verb","quest_type"]
-}
-,{
-//2
-    input_prompt: "{verb} a {quest type} quest involving {faction}", 
-    required_fields: ["verb","quest_type","faction"]
-}
-,{
-//3
-    input_prompt: "{verb} a {quest type} quest in the {location}.", 
-    required_fields: ["verb","quest_type","location"]
-}
-,{
-//4
-    input_prompt: "{verb} a {quest type} quest that involves {enemy}s.", 
-    required_fields: ["verb","quest_type","enemy"]
+//6
+    input_prompt: "", 
+    required_fields: [""]
 }
 ]
 
