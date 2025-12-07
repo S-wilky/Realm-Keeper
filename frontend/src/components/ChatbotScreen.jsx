@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import generateQuest from "../../../ai-service/app/generateQuest";
+import { saveGeneratedQuest, linkQuestAndTemplate, deleteGeneratedQuest } from "../services/questQueries";
 
-const ChatbotScreen = ({ questHooks = [], articles = [] }) => {
+const ChatbotScreen = () => {
     const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
+    const [savedQuests, setSavedQuests] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     const handleSend = async () => {
         if (!input.trim()) //return;
@@ -30,7 +33,43 @@ const ChatbotScreen = ({ questHooks = [], articles = [] }) => {
             ]);
         }
 
+        // Add user message instantly
+        
+        setMessages((prev) => [...prev, { sender: "user", text: userMessage }]);
         setInput("");
+        setLoading(true);
+
+        try {
+            // Generate quest
+            const questData = await generateQuest();
+
+            // Save to Supabase
+            const savedQuest = await saveGeneratedQuest(questData);
+            setSavedQuests((prev) => [...prev, savedQuest]);
+
+            // Display AI response
+            setMessages((prev) => [
+                ...prev,
+                { sender: "bot", text: questData.quest_hook || "AI couldn't generate a quest." },
+            ]);
+        } catch (err) {
+            console.error("Error generating quest:", err);
+            setMessages((prev) => [
+                ...prev,
+                { sender: "bot", text: "Something went wrong while generating your quest." },
+            ]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteQuest = async (questId) => {
+        try {
+            await deleteGeneratedQuest(questId);
+            setSavedQuests(prev => prev.filter(q => q.quest_id !== questId));
+        } catch (err) {
+            console.error("Error deleting quest:", err);
+        }
     };
 
     return (
@@ -58,6 +97,7 @@ const ChatbotScreen = ({ questHooks = [], articles = [] }) => {
                         {msg.text}
                     </div>
                 ))}
+                {loading && <div className="text-center italic text-gray-400">AI is thinking...</div>}
             </div>
 
             {/* Input */}
@@ -73,6 +113,27 @@ const ChatbotScreen = ({ questHooks = [], articles = [] }) => {
                     Send
                 </button>
             </div>
+
+            {/* Saved Quests */}
+            {savedQuests.length > 0 && (
+                <div className="mt-6">
+                    <h2 className="text-xl font-semibold mb-2">Saved Quests</h2>
+                    {savedQuests.map((quest) => (
+                        <div
+                            key={quest.quest_id}
+                            className="flex justify-between items-center p-2 bg-[#3A4750] my-2 rounded"
+                        >
+                            <span>{quest.quest_hook}</span>
+                            <button
+                                className="bg-red-500 px-2 py-1 rounded hover:opacity-80"
+                                onClick={() => handleDeleteQuest(quest.quest_id)}
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

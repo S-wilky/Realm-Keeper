@@ -45,7 +45,7 @@ async function generateQuest() {
   // 4. Build quest hook sentence
   let questHook = quest.quest_hook;
   for (const field of fields) {
-    questHook = questHook.replace(`{${field}}`, fillableFields[field].name);
+    questHook = questHook.replace(`{${field}}`, fillableFields[field]?.name || "[unknown]");
   }
   console.log("Quest hook: ", questHook);
 

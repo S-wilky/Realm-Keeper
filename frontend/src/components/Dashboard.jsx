@@ -1,10 +1,11 @@
 // Dashboard
 
+import supabase from "../services/supabase-client";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
 import logout from "../services/SessionManagement";
-import generateQuest from "../../../ai-service/app/generateQuest"
+import generateQuest from "../../../ai-service/app/generateQuest";
 
 import PopupModal from "./PopupModal";
 import WorldCreationForm from "./WorldCreationForm";
@@ -26,12 +27,122 @@ const Dashboard = ({ user = "User" }) => {
     const [openSections, setOpenSections] = useState({});
     const [sectionsDataState, setSectionsDataState] = useState(initialSectionsData);
     const [activePopup, setActivePopup] = useState(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [username, setUsername] = useState("");
+
+    useEffect(() => {
+        const getSession = async () => {
+            const { data, error } = await supabase.auth.getSession();
+            if (error) {
+                console.log("Error getting session:", error);
+            } else {
+                console.log("Supabase session:", data.session);
+                console.log("Current UID", data.session?.user?.id);
+            }
+        };
+        getSession();
+    }, []);
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const fetchUsername = async () => {
+            const { data, error } = await supabase
+                .from("profile")
+                .select("username")
+                .eq("profile_id", user.id)
+                .maybeSingle();
+
+            if (error) console.log("Dashboard fetch username error:", error);
+            if (data?.username) setUsername(data.username);
+        };
+
+        fetchUsername();
+    }, [user?.id]);
+
+    // Fetch saved popups from Supabase
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const fetchData = async () => {
+            const { data: worlds } = await supabase
+                .from("worlds")
+                .select("*")
+                .eq("user_id", user.id);
+            const { data: campaigns } = await supabase
+                .from("campaigns")
+                .select("*")
+                .eq("user_id", user.id);
+            const { data: articles } = await supabase
+                .from("articles")
+                .select("*")
+                .eq("user_id", user.id);
+
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Worlds: worlds || [],
+                Campaigns: campaigns || [],
+                Articles: articles || [],
+            }));
+        };
+
+        fetchData();
+
+        // Real time listeners
+        const worldChannel = supabase
+            .channel("worlds_changes")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "realms", table: "worlds", filter: `user_id=eq.${user.id}` },
+                (payload) => {
+                    setSectionsDataState((prev) => ({
+                        ...prev,
+                        Worlds: [...prev.Worlds, payload.new],
+                    }));
+                }
+            )
+            .subscribe();
+
+        const campaignChannel = supabase
+            .channel("campaigns_changes")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "realms", table: "campaigns", filter: `user_id=eq.${user.id}` },
+                (payload) => {
+                    setSectionsDataState((prev) => ({
+                        ...prev,
+                        Campaigns: [...prev.Campaigns, payload.new],
+                    }));
+                }
+            )
+            .subscribe();
+
+        const articleChannel = supabase
+            .channel("articles_changes")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "realms", table: "articles", filter: `user_id=eq.${user.id}` },
+                (payload) => {
+                    setSectionsDataState((prev) => ({
+                        ...prev,
+                        Articles: [...prev.Articles, payload.new],
+                    }));
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(worldChannel);
+            supabase.removeChannel(campaignChannel);
+            supabase.removeChannel(articleChannel);
+        };
+    }, [user.id]);
 
     // Load saved sections from localStorage on mount
-    useEffect(() => {
-        const saved = localStorage.getItem("sectionsData");
-        if (saved) setSectionsDataState(JSON.parse(saved));
-    }, []);
+    // useEffect(() => {
+    //     const saved = localStorage.getItem("sectionsData");
+    //     if (saved) setSectionsDataState(JSON.parse(saved));
+    // }, []);
 
     // Save to localStorage wheneber sectionsDataState changes
     useEffect(() => {
@@ -59,8 +170,15 @@ const Dashboard = ({ user = "User" }) => {
                         className="bg-[#2C3539] border border-gray-600 rounded-xl text-center py-4 text-[#D9DDDC] hover:bg-[#37414A] transition cursor-pointer"
                         onClick={() => {
                             // Navigate to Chatbot page when clicking "Chatbot"
+                            // Navigate to screens "World", "Campaigns", "Articles"
                             if (section === "AI Chat" && item === "Chatbot") {
                                 navigate("/chatbot");
+                            } else if (section === "Worlds") {
+                                navigate(`/world/${item.world_id}`, { state: item });
+                            } else if (section === "Campaigns") {
+                                navigate(`/campaign/${item.campaign_id}`, { state: item });
+                            } else if (section === "Articles") {
+                                navigate(`/article/${item.article_id}`, { state: item });
                             }
                         }}
                     >
@@ -68,7 +186,7 @@ const Dashboard = ({ user = "User" }) => {
                             item
                         ) : (
                             <div className="flex flex-col">
-                                <strong>{item.name || "Unnamed"}</strong>
+                                <strong>{item.name || item.title || "Unnamed"}</strong>
                                 {item.description && (
                                     <p className="text-sm text-gray-400 mt-1">{item.description}</p>
                                 )}
@@ -86,20 +204,90 @@ const Dashboard = ({ user = "User" }) => {
         );
     };
 
+    // Handlers with Supabase inserts
+    const handleCreateWorld = async (data) => {
+        const { data: newWorld, error } = await supabase
+            .from("worlds")
+            .insert([{ 
+                name: data.name, 
+                description: data.description, 
+                user_id: user.id }])
+            .select()
+            .single();
+
+        if (!error) {
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Worlds: [...prev.Worlds, newWorld],
+            }));
+        }
+
+        handleClosePopup();
+    };
+
+    const handleCreateCampaign = async (data) => {
+        if (!data.world_id) {
+            console.error("World must be selected for a campaign!");
+            return;
+        }
+
+        const { data: newCampaign, error } = await supabase
+            .from("campaigns")
+            .insert([{ 
+                title: data.title, 
+                description: data.description, 
+                world_id: data.world_id, 
+                user_id: user.id, 
+                tags: data.tags || [] }])
+            .select()
+            .single();
+
+        if (!error) {
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Campaigns: [...prev.Campaigns, newCampaign],
+            }));
+        }
+
+        handleClosePopup();
+    };
+
+    const handleCreateArticle = async (data) => {
+        const { data: newArticle, error } = await supabase
+            .from("articles")
+            .insert([{ 
+                title: data.title, 
+                type: data.type, 
+                body: data.body, 
+                world_id: data.world_id || null, 
+                user_id: user.id }])
+            .select()
+            .single();
+
+        if (!error) {
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Articles: [...prev.Articles, newArticle],
+            }));
+        }
+
+        handleClosePopup();
+    };
+
     return (
         <div className="w-screen h-screen m-0 p-0 overflow-x-hidden bg-[#2C3539] text-[#D9DDDC] font-sans p-6 flex flex-col">
             {/* Top bar */}
             
             <div className="flex items-center justify-between mb-8">
                 <img
-                    onClick={logout}
+                    //onClick={logout}
                     src="/src/assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-20 h-20"
                 />
 
                 <h1 className="text-3xl font-semibold text-center flex-grow">
-                    Welcome back, {user}!
+                    Welcome back, {username || user?.email}!
                 </h1>
 
                 <div className="flex items-center gap-3">
@@ -116,9 +304,30 @@ const Dashboard = ({ user = "User" }) => {
 
                     {/* Hamburger icon */}
 
-                    <button className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition" onClick={generateQuest /*logout*/}>
+                    <button 
+                        className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition" 
+                        // onClick={generateQuest /*logout*/}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
                         <FiMenu size={20} />
                     </button>
+
+                    {isMenuOpen && (
+                        <div className="absolute right-6 top-20 bg-[#2C3539] border-gray-600 rounded-lg shadow-lg p-4 flex flex-col gap-2 z-50">
+                            <button
+                                onClick={() => navigate("/profile")}
+                                className="text-[#D9DDDC] hover:text-white text-left"
+                            >
+                                Profile
+                            </button>
+                            <button
+                                onClick={logout}
+                                className="text-[#D9DDDC] hover:text-white text-left"
+                            >
+                                Logout
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -161,36 +370,22 @@ const Dashboard = ({ user = "User" }) => {
             {activePopup && (
                 <PopupModal onClose={handleClosePopup}>
                     {activePopup === "world" && (
-                        <WorldCreationForm
-                            onClose={handleClosePopup}
-                            onCreate={(data) => 
-                                setSectionsDataState((prev) => ({
-                                    ...prev,
-                                    Worlds: [...prev.Worlds, { name: data.name, description: data.description }],
-                                }))
-                            }
-                        />
+                        <WorldCreationForm 
+                            onClose={handleClosePopup} 
+                            onCreate={handleCreateWorld} />
                     )}
                     {activePopup === "campaign" && (
                         <CampaignCreationForm
                             onClose={handleClosePopup}
-                            onCreate={(data) => 
-                                setSectionsDataState((prev) => ({
-                                    ...prev,
-                                    Campaigns: [...prev.Campaigns, { name: data.campaignName, world: data.world, summary: data.summary }],
-                                }))
-                            }
+                            onCreate={handleCreateCampaign}
+                            worlds={sectionsDataState.Worlds}
                         />
                     )}
                     {activePopup === "article" && (
                         <ArticleCreationForm
                             onClose={handleClosePopup}
-                            onCreate={(data) => 
-                                setSectionsDataState((prev) => ({
-                                    ...prev,
-                                    Articles: [...prev.Articles, { name: data.title, category: data.category, content: data.content }],
-                                }))
-                            }
+                            onCreate={handleCreateArticle}
+                            worlds={sectionsDataState.Worlds}
                         />
                     )}
                 </PopupModal>
