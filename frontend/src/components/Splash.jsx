@@ -13,13 +13,22 @@ const Splash = ({ onFinish }) => {
             setProgress((prev) => {
                 if (prev >= 100) {
                     clearInterval(interval);
-                    onFinish(); // Notify parent that splash is done
+                    //onFinish(); // Notify parent that splash is done
                     return 100;
                 }
                 return prev + 2;
             });
         }, 50);
-        return () => clearInterval(interval);
+
+        // Call onFinish after progress completes
+        const finishTimeout = setTimeout(() => {
+            onFinish();
+        }, 50 * 50 + 50);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(finishTimeout);
+        };
     }, [onFinish]);
 
     return (

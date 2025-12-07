@@ -7,6 +7,10 @@ import LoginSignupForm from "./components/LoginSignupForm";
 import ChatbotScreen from "./components/ChatbotScreen";
 import "./App.css";
 import logo from "./assets/RealmKeeperLogoSVG1.svg";
+import ProfileScreen from "./components/ProfileScreen";
+import WorldScreen from "./components/WorldScreen";
+import CampaignScreen from "./components/CampaignScreen";
+import ArticleScreen from "./components/ArticleScreen";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -54,15 +58,37 @@ function App() {
           path="/"
           element={
             session ? (
-              <Dashboard user={username} />
+              <Dashboard user={session.user} />
             ) : (
-              <LoginSignupForm onSignIn={(name) => setUsername(name)} />
+              <LoginSignupForm 
+                onSignIn={() => fetchSession()}
+              />
             )
           }
         />
 
         {/* Chatbot route */}
         <Route path="/chatbot" element={<ChatbotScreen />} />
+
+        {/* Profile Screen route */}
+        <Route
+          path="/profile"
+          element={<ProfileScreen user={session?.user} />}
+        />
+
+        {/* Routes for detail screens */}
+        <Route
+          path="/world/:id"
+          element={<WorldScreen />}
+        />
+        <Route
+          path="/campaign/:id"
+          element={<CampaignScreen />}
+        />
+        <Route
+          path="/article/:id"
+          element={<ArticleScreen />}
+        />
       </Routes>
     </Router>
   );
