@@ -6,7 +6,6 @@ import supabase from "../services/supabase-client";
 
 const WorldScreen = () => {
     const { state } = useLocation();
-    // const { id: paramId } = useParams();
     const navigate = useNavigate();
 
     if (!state) return <p>No world data found.</p>;
@@ -27,7 +26,6 @@ const WorldScreen = () => {
             alert("Error saving world: " + error.message);
         } else {
             alert("World saved!");
-            // navigate("/", { replace: true })
             setIsEditing(false);
         }
     };
