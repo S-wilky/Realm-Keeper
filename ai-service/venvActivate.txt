@@ -1,0 +1,10 @@
+Run following code to activate virtual environment from root/ai-service:
+
+conda activate rk_train
+
+** If I want to use vLLM then use the realmkeeper venv
+
+
+rk_train contains:
+pip install "torch==2.3.1+cu121" --extra-index-url https://download.pytorch.org/whl/cu121
+pip install transformers accelerate bitsandbytes fastapi uvicorn sentencepiece

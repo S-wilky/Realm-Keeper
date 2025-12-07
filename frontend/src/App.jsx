@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import supabase from "./services/supabase-client";
 import Splash from "./components/Splash";
 import Dashboard from "./components/Dashboard";
 import LoginSignupForm from "./components/LoginSignupForm";
+import ChatbotScreen from "./components/ChatbotScreen";
 import "./App.css";
 import logo from "./assets/RealmKeeperLogoSVG1.svg";
+import ProfileScreen from "./components/ProfileScreen";
+import WorldScreen from "./components/WorldScreen";
+import CampaignScreen from "./components/CampaignScreen";
+import ArticleScreen from "./components/ArticleScreen";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -45,13 +51,46 @@ function App() {
   }
 
   return (
-    <>
-      {session ? (
-        <Dashboard user={username} />
-       ) : (
-         <LoginSignupForm onSignIn={(name) => setUsername(name)} />
-        )}  
-    </>
+    <Router>
+      <Routes>
+        {/* Default route -- Dashboard or Login */}
+        <Route
+          path="/"
+          element={
+            session ? (
+              <Dashboard user={session.user} />
+            ) : (
+              <LoginSignupForm 
+                onSignIn={() => fetchSession()}
+              />
+            )
+          }
+        />
+
+        {/* Chatbot route */}
+        <Route path="/chatbot" element={<ChatbotScreen />} />
+
+        {/* Profile Screen route */}
+        <Route
+          path="/profile"
+          element={<ProfileScreen user={session?.user} />}
+        />
+
+        {/* Routes for detail screens */}
+        <Route
+          path="/world/:id"
+          element={<WorldScreen />}
+        />
+        <Route
+          path="/campaign/:id"
+          element={<CampaignScreen />}
+        />
+        <Route
+          path="/article/:id"
+          element={<ArticleScreen />}
+        />
+      </Routes>
+    </Router>
   );
 }
 
