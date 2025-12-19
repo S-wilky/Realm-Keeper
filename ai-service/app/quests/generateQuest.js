@@ -5,6 +5,7 @@ async function generateQuest(input_prompt = null) {
   // 1. Pick a random template
   console.log("Prompt passed to GenerateQuest: ", input_prompt);
   let query = supabase
+      .schema('public')
       .from('quest_templates')
       .select()   //Add filters here. Potential to reduce payload?
 
@@ -59,7 +60,7 @@ async function generateQuest(input_prompt = null) {
       } else {
           table = field + 's';
       }
-      let query = supabase.from(table).select();
+      let query = supabase.schema('public').from(table).select();
       if (new_required_fields.includes(field)) {
         console.log("Replaced field: ", field);
         console.log("Replaced with: ", input_prompt.replaced_fields[field]);
