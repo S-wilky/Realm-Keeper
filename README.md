@@ -7,10 +7,24 @@ is in line with the rest of your world lore.
 ### Alpha Features:
 
 - World creation (containers to group your articles by)
-- Article creation with different types available (characters, quests, settlements and more, each with their own custom prompt fields)
+- Article creation with different types available (characters, quests, settlements and more, with the ability to add custom prompt fields)
 - AI quest generation (ask the chatbot in natural language to generate you a quest with different parameters)
 - Integrated AI chatbot that understands natural language
 - A dashboard to see all your worlds, articles, and chats in one place
+
+### Beta Features:
+
+- Chatbot stores previous chats
+- 3 Chatbot functions:
+  - Improved quest generation from trained model
+  - Ask questions about your own articles to maintain consistency
+  - Ask general questions to a moderately advanced LLM
+- Search bar for finding articles by title or contents
+- Shared sessions for playing rpgs online with friends
+  - Game master can create sessions and invite players
+  - All users in shared sessions can share chats and input dice command
+  - All users can view the same map on the screen
+- Statblock creation for D&D 5e characters
 
 ### Technologies:
 
@@ -44,4 +58,4 @@ MIT License
 
 ### Project Status:
 
-Pre-Alpha
+Beta
