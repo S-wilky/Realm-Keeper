@@ -5,12 +5,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
 import logout from "../services/SessionManagement";
+import "../styles/overrides.css";
 
 
-import PopupModal from "./PopupModal";
-import WorldCreationForm from "./WorldCreationForm";
-import CampaignCreationForm from "./CampaignCreationForm";
-import ArticleCreationForm from "./ArticleCreationForm";
+import PopupModal from "../components/PopupModal";
+import WorldCreationForm from "../components/WorldCreationForm";
+import CampaignCreationForm from "../components/CampaignCreationForm";
+import ArticleCreationForm from "../components/ArticleCreationForm";
 import ChatbotScreen from "./ChatbotScreen";
 
 const initialSectionsData = {
@@ -277,7 +278,7 @@ const Dashboard = ({ user = "User" }) => {
     };
 
     return (
-        <div className="w-screen h-screen m-0 p-0 overflow-x-hidden bg-[#2C3539] text-[#D9DDDC] font-sans p-6 flex flex-col">
+        <div className="w-screen h-screen m-0 p-6 overflow-x-hidden bg-[#2C3539] text-[#D9DDDC] font-sans flex flex-col">
             {/* Top bar */}
             
             <div className="flex items-center justify-between mb-8">
@@ -288,14 +289,14 @@ const Dashboard = ({ user = "User" }) => {
                     className="w-20 h-20"
                 />
 
-                <h1 className="text-3xl font-semibold text-center flex-grow">
+                <h1 className="text-3xl font-semibold text-center grow">
                     Welcome back, {username || user?.email}!
                 </h1>
 
                 <div className="flex items-center gap-3">
                     {/* Search bar */}
 
-                    <div className="flex items-center bg-[#3a3f47] rounded-full px-3 py-1">
+                    <div className="flex items-center bg-[#3A3F47] rounded-full px-3 py-1">
                         <input
                             type="text"
                             placeholder="Search"
@@ -307,24 +308,23 @@ const Dashboard = ({ user = "User" }) => {
                     {/* Hamburger icon */}
 
                     <button 
-                        className="bg-[#EAAC59] p-3 rounded-full hover:opacity-80 transition" 
-                        // onClick={generateQuest /*logout*/}
+                        className="bg-pale-orange text-[#D9DDDC] p-3 rounded-full hover:opacity-80 transition" //pale-orange is #EAAC59
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
                         <FiMenu size={20} />
                     </button>
 
                     {isMenuOpen && (
-                        <div className="absolute right-6 top-20 bg-[#2C3539] border-gray-600 rounded-lg shadow-lg p-4 flex flex-col gap-2 z-50">
+                        <div className="absolute right-6 top-20 bg-[#2C3539] border border-gray-600 rounded-lg shadow-lg p-4 flex flex-col gap-2 z-50"> 
                             <button
                                 onClick={() => navigate("/profile")}
-                                className="text-[#D9DDDC] hover:text-white text-left"
+                                className="bg-pale-orange text-[#D9DDDC] hover:text-white text-left" //pale-orange is #EAAC59
                             >
                                 Profile
                             </button>
                             <button
                                 onClick={logout}
-                                className="text-[#D9DDDC] hover:text-white text-left"
+                                className="bg-pale-orange text-[#D9DDDC] hover:text-white text-left" //pale-orange is #EAAC59
                             >
                                 Logout
                             </button>
