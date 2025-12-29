@@ -109,6 +109,10 @@ except Exception as e:
 # Resize token embeddings if tokenizer grew
 model.resize_token_embeddings(len(tokenizer))
 
+# Reduce VRAM + heat (balanced mode)
+model.config.use_cache = False
+model.gradient_checkpointing_enable()
+
 # -------------- Apply LoRA (PEFT) --------------
 peft_config = LoraConfig(
     r=args.lora_r,
