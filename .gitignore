@@ -28,3 +28,6 @@ npm-debug.log*
 # Env
 .env
 .env.*
+
+# Large AI model checkpoints
+ai-service/phi3_qlora_out/
