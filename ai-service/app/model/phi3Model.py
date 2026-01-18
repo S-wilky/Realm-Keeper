@@ -59,9 +59,13 @@ def generate_quest_from_prompt(user_input: str, max_tokens=150, temperature=0.7,
             pad_token_id=tokenizer.eos_token_id
         )
 
-    result = tokenizer.decode(output[0], skip_special_tokens=True)
-    print(result)  # <- This prints it directly
+    generated_tokens = output[0][inputs["input_ids"].shape[-1]:]
+    result = tokenizer.decode(generated_tokens, skip_special_tokens=True).strip()
+
     return result
+    # result = tokenizer.decode(output[0], skip_special_tokens=True)
+    # print(result)  # <- This prints it directly
+    # return result
 
 
 

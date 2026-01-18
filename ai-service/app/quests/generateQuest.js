@@ -1,9 +1,18 @@
 import supabase from "../../../frontend/src/services/supabase-client";
 import pickRandom from "../utils/pickRandom";
+import { retrieveRelevantArticles } from "../embeddings/retrieveRelevantArticles";
 
 async function generateQuest(input_prompt = null) {
   // 1. Pick a random template
   console.log("Prompt passed to GenerateQuest: ", input_prompt);
+
+  // RAG retrieval
+  let loreSources = [];
+  if (input_prompt?.input_prompt) {
+    loreSources = await retrieveRelevantArticles(input_prompt.input_prompt, 3);
+    console.log("Retrieved lore sources:", loreSources);
+  }
+
   let query = supabase
       .schema('public')
       .from('quest_templates')
@@ -98,9 +107,12 @@ async function generateQuest(input_prompt = null) {
     faction: faction || null,
     enemy: enemy || null,
     difficulty: difficulty || null,
-    quest_hook: questHook
+    quest_hook: questHook,
+    lore_sources: loreSources
   };
   // console.log("Quest in JSON:", questData);
+
+  console.log("Quest in JSON with RAG:", questData);
 
   return questData;
 }

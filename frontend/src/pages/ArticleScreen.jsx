@@ -39,19 +39,101 @@ const ArticleScreen = () => {
     if (!state) return <p>No article data found.</p>;
 
     const handleSave = async () => {
-        const { error } = await supabase
-            .from("articles")
-            .update({ title, body, type, world_id })
-            .eq("article_id", article_id);
+        let article_id_to_use = article_id; // use existing ID if editing
 
-        if (error) {
-            alert("Error saving article: " + error.message);
-        } else {
+        try {
+            let result;
+
+            if (article_id_to_use) {
+                // Existing article -> update
+                const { data, error } = await supabase
+                    .from("articles")
+                    .update({ title, body, type, world_id })
+                    .eq("article_id", article_id_to_use)
+                    .select();
+
+                if (error) throw error;
+                article_id_to_use = data[0].article_id; // ensure we have the correct ID
+            } else {
+                // New article -> insert
+                const { data, error } = await supabase
+                    .from("articles")
+                    .insert({ title, body, type, world_id })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                article_id_to_use = data.article_id; // grab the new ID
+            }
+
+            // Ensure article_id exists before embedding
+            if (!article_id_to_use) {
+                console.error("Article ID missing; cannot embed");
+                alert("Article saved, but no valid ID to embed.");
+                return;
+            }
+
+            // Embed article
+            const res = await fetch (`${import.meta.env.VITE_AI_SERVICE_URL}/embed-article`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ article_id: article_id_to_use, body }),
+            });
+
+            const embedData = await res.json();
+            if (!embedData.success) {
+                console.error("Embedding failed:", embedData.error);
+                alert("Article saved, but embedding failed. Check console for detail.");
+            } else {
+                console.log("Embedding successful:", embedData.data);
+            }
+
             setIsSaved(true);
             alert("Article saved!");
-            // navigate("/", { replace: true })
+        } catch (err) {
+            console.error("Error saving article:", err);
+            alert("Error saving article. Check console for details.");
         }
     };
+        // {
+    //     const { error: saveError, data: savedData } = await supabase
+    //         .from("articles")
+    //         .update({ title, body, type, world_id })
+    //         .eq("article_id", article_id)
+    //         .select();
+
+    //     if (saveError) {
+    //         alert("Error saving article: " + saveError.message);
+    //         return;
+    //     }
+        
+    //     try {
+    //         const res = await fetch(`${import.meta.env.VITE_AI_SERVICE_URL}/embed-article`, {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify({
+    //                 article_id,
+    //                 body
+    //             }),
+    //         });
+
+    //         const data = await res.json();
+
+    //         if (!data.success) {
+    //             console.error("Embedding failed:", data.error);
+    //             alert("Article saved, but embeddding failed. Check console for details.");
+    //         } else {
+    //             console.log("Embedding successful:", data.data);
+    //         }
+    //     } catch (err) {
+    //         console.error("Embedding request failed:", err);
+    //         alert("Article saved, but embedding request failed. Check console.");
+    //     }
+
+    //         setIsSaved(true);
+    //         alert("Article saved!");
+    //         // navigate("/", { replace: true })
+    // };
 
     const handleDelete = async () => {
         if (!window.confirm("Are you sure you want to delete this article? This cannot be undone.")) return;
