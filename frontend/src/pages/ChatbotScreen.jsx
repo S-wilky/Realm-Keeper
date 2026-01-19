@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import generateQuest from "../../../ai-service/app/quests/generateQuest";
+// import generateQuest from "../../../ai-service/app/quests/generateQuest";
 import generateText from "../utils/generateAIText";
-import generateInputPrompt from "../../../ai-service/app/quests/generateInputPrompt";
+// import generateInputPrompt from "../../../ai-service/app/quests/generateInputPrompt";
 
 const ChatbotScreen = () => {
     const navigate = useNavigate();
@@ -15,24 +15,26 @@ const ChatbotScreen = () => {
 
         if (!input.trim()) //return;
         {
-            console.warn("test");
-            //Generate a random input prompt
-            const promptData = await generateInputPrompt();
-            // console.log("Prompt Data retreived:", promptData);
-            const prompt = promptData.input_prompt;
-            // console.log("Prompt: ", prompt);
+            return;
 
-            //Generate a random Quest
-            const questData = await generateQuest(promptData);
-            // console.log("Quest Data retreived:", questData);
-            const quest = questData.quest_hook;
-            // console.log("Quest:", quest);
+            // console.warn("test");
+            // //Generate a random input prompt
+            // const promptData = await generateInputPrompt();
+            // // console.log("Prompt Data retreived:", promptData);
+            // const prompt = promptData.input_prompt;
+            // // console.log("Prompt: ", prompt);
 
-            setMessages((prev) => [
-            ...prev,
-            { sender: "user", text: prompt },
-            { sender: "bot", text: quest }, //quest.quest_hook
-            ]);
+            // //Generate a random Quest
+            // const questData = await generateQuest(promptData);
+            // // console.log("Quest Data retreived:", questData);
+            // const quest = questData.quest_hook;
+            // // console.log("Quest:", quest);
+
+            // setMessages((prev) => [
+            // ...prev,
+            // { sender: "user", text: prompt },
+            // { sender: "bot", text: quest }, //quest.quest_hook
+            // ]);
         } else {
             // Placeholder for backend integration:
             let response = "";

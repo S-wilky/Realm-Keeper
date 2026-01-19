@@ -7,7 +7,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-
-  # Ignore other folders during build
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
