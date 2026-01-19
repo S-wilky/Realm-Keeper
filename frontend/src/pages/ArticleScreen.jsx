@@ -9,16 +9,24 @@ import "../styles/overrides.css";
 import articleTypes from "../utils/articleTypes";
 import * as Select from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react"; // optional icon
+import SideMenu from "../components/SideMenu"
+import { FiPlus } from "react-icons/fi";
 
 const ArticleScreen = () => {
     const { state } = useLocation();
     const navigate = useNavigate();
 
-    const { article_id, title: initialTitle, body: initialBody, type: initialType, /*user_id,*/ world_id } = state;
+    const { article_id, title: initialTitle, body: initialBody, type: initialType, metadata: metaData, /*user_id,*/ world_id } = state;
 
     const [title, setTitle] = useState(initialTitle);
     const [body, setBody] = useState(initialBody);
     const [type, setType] = useState(initialType);
+    // const [metadata, setMetadata] = useState(metaData);
+    const [activeTab, setActiveTab] = useState("content")
+    const [customFields, setCustomFields] = useState(metaData?.customFields ?? [])
+    const [newLabel, setNewLabel] = useState("");
+    const [newValue, setNewValue] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false)
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     // const [isEditingBody, setIsEditingBody] = useState(false);
     const [isEditingType, setIsEditingType] = useState(false);
@@ -69,24 +77,68 @@ const ArticleScreen = () => {
         }
     };
 
+    const handleAddField = async () => {
+        const field = {
+            id: crypto.randomUUID(),
+            label: newLabel,
+            value: newValue,
+        }
+
+        const updatedFields = [...customFields, field]
+        setCustomFields(updatedFields)
+
+        setNewLabel("");
+        setNewValue("");
+        setIsModalOpen(false)
+
+        await supabase
+            .from("articles")
+            .update({
+            metadata: {
+                ...metaData,
+                customFields: updatedFields,
+            },
+            })
+            .eq("article_id", article_id)
+    }
+
+    const handleDeleteField = async (fieldId) => {
+        if (!window.confirm("Delete this field?")) return;
+
+        const updatedFields = customFields.filter(
+            (field) => field.id !== fieldId
+        )
+
+        setCustomFields(updatedFields)
+
+        if (updatedFields.length === 0) {
+            setActiveTab("content");
+        }
+
+        const { error } = await supabase
+            .from("articles")
+            .update({
+            metadata: {
+                ...metaData,
+                customFields: updatedFields,
+            },
+            })
+            .eq("article_id", article_id)
+
+        if (error) {
+            console.error("Failed to delete field:", error)
+            alert("Error deleting field")
+        }
+    }
+
     return (
         <div className="m-0 p-0 w-screen h-screen overflow-x-hidden bg-[#2C3539] text-[#D9DDDC] font-sans flex">
             {/* View Button */}
             <div className="fixed top-5 right-5 z-20 bg-erie rounded-full">
-                    <RK_Icon size="sm" color="duskyBlue" onClick={() => setIsViewing(isViewing ? false : true)}></RK_Icon>
+                    <RK_Icon icon={isViewing ? "pencil" : "binoculars"} size="sm" color="duskyBlue" onClick={() => setIsViewing(isViewing ? false : true)}></RK_Icon>
             </div>
             {/* Side Menu */}
-            <div className="m-0 p-3 sticky bg-erie flex flex-col items-center top-0 w-25 h-screen">
-                <img
-                    onClick={() => navigate("/")}
-                    src="/src/assets/RealmKeeperLogo.png"
-                    alt="Realm Keeper Logo"
-                    className="w-20 h-20 mb-10 self-center cursor-pointer"
-                />
-                <RK_Icon size="md" color="duskyBlue" />
-                <RK_Icon size="md" color="duskyBlue" />
-                <RK_Icon size="md" color="duskyBlue" />
-            </div>
+            <SideMenu />
             {/* Main Page */}
             <div className="m-0 p-0 relative flex-1 overflow-y-auto">
                 {/* Background Image - TODO: Add logic to switch this out. */}
@@ -101,7 +153,7 @@ const ArticleScreen = () => {
                             <div className="flex items-center">
                                 {/* Article Icon - TODO: Add logic to update on click or based on article type */}
                                 <div className="shrink-0">
-                                    <RK_Icon size="md" color="duskyBlue" onClick={() => {}} />
+                                    <RK_Icon size="md" color="duskyBlue" /*onClick={() => {}}*/ />
                                 </div>
                                 {/* Title */}
                                 <div className="relative overflow-hidden">
@@ -144,7 +196,7 @@ const ArticleScreen = () => {
                                     }
                                 </div>
                             </div>
-                            {/* Article Type - TODO: On click, change to dropdown of all article types. Update and return to p on blur. */}
+                            {/* Article Type - TODO: Clean up dropdown to match base text (or vice versa) */}
                             <div className="flex items-center gap-1">
                                 <p className="ms-4 text-sm text-gray-400">Type:</p>
 
@@ -228,69 +280,136 @@ const ArticleScreen = () => {
                                     </p>
                                 )}
                                 </div>
-                            {/* <div className="flex">
-                                <p className="text-sm text-gray-400 mb-2">Type:</p>
-                                {isEditingType ? (
-                                    <select 
-                                        type="select"
-                                        value={type}
-                                        // autoFocus
-                                        onChange={(e) => {
-                                            setType(e.target.value);
-                                            isSaved ? setIsSaved(false) : null;
-                                        }}
-                                        onBlur={() => setIsEditingType(false)}
-                                        className="text-sm text-gray-400 mb-2" //"border p-2 rounded"
-                                        placeholder="Type"
-                                    >
-                                        <option value="" className="bg-abbey">{type}</option>
-                                        {articleTypes.map((type, index) => (
-                                            <option key={index} value={type} className="bg-abbey">
-                                                {type}
-                                            </option>
-                                        ))}
-                                    </select>) : (
-                                    <p className="text-sm text-gray-400 mb-2"
-                                        onClick={() => setIsEditingType(true)}
-                                    >&nbsp;{type}</p>)
-                                }
-                            </div> */}
                         </div>
                     </div>
-                    <div className="pt-30 m-10">
-                        {/* Article Body - TODO: Add "View" button in top right and change to <p> on "view" */}
-                        {isViewing ? 
-                            <p className="p-2 rounded w-full bg-slate min-h-96"
-                            >{body}</p> :
-                            <textarea
-                                value={body}
-                                onChange={(e) => {
-                                    setBody(e.target.value);
-                                    isSaved ? setIsSaved(false) : null;
-                                }}
-                                className="border p-2 rounded w-full bg-slate min-h-96"
-                            />
-                        }
-                        {/* {isEditing ? (
-                            <div className="flex-col gap-2">
-                            </div>
-                        ) : (
-                            <>
-                                <p className="mb-4 whitespace-pre-line">{body}</p>
-                            </>
-                        )} */}
-                        <div className="flex grow gap-2 mt-4">
-                            {/* Save, Delete, and Return to Dashboard Buttons*/}
-                            <RK_Button onClick={handleSave}
-                                disabled={isSaved ? true : false}
-                            >Save</RK_Button>
-                            <RK_Button type="accent" onClick={handleDelete}>
-                                Delete
-                            </RK_Button>
-                            <RK_Button onClick={() => navigate("/")}>
-                                Return to Dashboard
-                            </RK_Button>
+                    {/* Tabs */}
+                    <div className="pt-25 m-10">
+                        <div className="flex border-b border-gray-600 place-content-center gap-200">
+                            {["content", "custom"].map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => {
+                                        setActiveTab(tab);
+                                        activeTab === "content" && tab === "custom" && customFields.length === 0 && setIsModalOpen(true);
+                                    }}
+                                    className={`px-4 py-2 text-sm font-medium bg-gunmetal
+                                        ${activeTab === tab
+                                        ? "border-b-2 border-dusky-blue text-white"
+                                        : "text-gray-400 hover:text-white"
+                                        }`}
+                                    >
+                                    <div className="flex gap-2">
+                                        {tab === "content" ? "Content" : "Custom Fields"}
+                                        {activeTab === "content" && tab === "custom" && customFields.length === 0 &&
+                                            <span className="bg-[#EAAC59] text-black px-1.5 py-0.5 rounded-full text-sm flex items-center">
+                                                <FiPlus size={14} />
+                                            </span>
+                                        }
+                                    </div>
+                                </button>
+                            ))}
                         </div>
+                        {/* Article Body - TODO: Add formatting options */}
+                        {activeTab === "content" && (
+                            <div className="p-4">
+                                {isViewing ? <p className="p-2 rounded w-full bg-slate min-h-75">{body}</p>
+                                : <textarea value={body}
+                                    onChange={(e) => {
+                                        setBody(e.target.value);
+                                        isSaved ? setIsSaved(false) : null;
+                                    }}
+                                    className="border p-2 rounded w-full bg-slate min-h-75"
+                                />
+                                }
+                                <div className="flex grow gap-2 mt-4">
+                                    {/* Save, Delete, and Return to Dashboard Buttons*/}
+                                    <RK_Button onClick={handleSave}
+                                        disabled={isSaved ? true : false}
+                                    >Save</RK_Button>
+                                    <RK_Button type="accent" onClick={handleDelete}>
+                                        Delete
+                                    </RK_Button>
+                                    <RK_Button onClick={() => navigate("/")}>
+                                        Return to Dashboard
+                                    </RK_Button>
+                                </div>
+                            </div>
+                        )}
+                        {/* Custom Fields */}
+                        {activeTab === "custom" && (
+                            <div className="p-4 space-y-4">
+                                {customFields.length === 0 ? (
+                                    null
+                                // <button
+                                //     onClick={() => setIsModalOpen(true)}
+                                //     className="px-4 py-2 bg-dusky-blue text-white rounded hover:opacity-90"
+                                // >
+                                //     + Add Custom Field
+                                // </button>
+                                ) : (
+                                <>
+                                    <div className="space-y-2">
+                                    {customFields.map(field => (
+                                        <div key={field.id} className="bg-gray-800 p-3 rounded flex items-start gap-3">
+                                            <div className="flex-1">
+                                                <p className="text-sm text-gray-400">{field.label}</p>
+                                                <p>{field.value}</p>
+                                            </div>
+                                            <RK_Icon icon="trash" size="sm" color="gray400" className="mt-1 shrink-0" onClick={() => handleDeleteField(field.id)}></RK_Icon>
+                                        </div>
+                                    ))}
+                                    </div>
+
+                                    <RK_Button onClick={() => setIsModalOpen(true)}>
+                                        + Add another field
+                                    </RK_Button>
+                                </>
+                                )}
+                            </div>
+                        )}
+                        {/* Popup to add Custom Field */}
+                        {isModalOpen && (
+                            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                                <div className="bg-[#1f2933] p-6 rounded w-96 space-y-4">
+                                <h3 className="text-lg font-semibold">Add Custom Field</h3>
+
+                                <input
+                                    placeholder="Field name"
+                                    className="w-full bg-gray-800 p-2 rounded outline-none border border-gray-400"
+                                    value={newLabel}
+                                    onChange={e => setNewLabel(e.target.value)}
+                                />
+
+                                <textarea
+                                    placeholder="Field value"
+                                    className="w-full bg-gray-800 p-2 rounded outline-none border border-gray-400"
+                                    value={newValue}
+                                    onChange={e => setNewValue(e.target.value)}
+                                />
+
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                    onClick={() => {
+                                        setIsModalOpen(false);
+                                        setNewLabel("");
+                                        setNewValue("");
+                                    }}
+                                    className="text-gray-400"
+                                    >
+                                    Cancel
+                                    </button>
+                                    <button
+                                        onClick={(
+                                            handleAddField
+                                        )}
+                                        className="bg-dusky-blue px-4 py-2 rounded"
+                                    >
+                                    Add
+                                    </button>
+                                </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -11,10 +11,11 @@ import ProfileScreen from "./pages/ProfileScreen";
 import WorldScreen from "./pages/WorldScreen";
 import CampaignScreen from "./pages/CampaignScreen";
 import ArticleScreen from "./pages/ArticleScreen";
+import SessionScreen from "./pages/SessionScreen";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [username, setUsername] = useState("");
+  // const [username, setUsername] = useState("");
   const [session, setSession] = useState(null);
 
   async function fetchSession() {
@@ -88,6 +89,10 @@ function App() {
         <Route
           path="/article/:id"
           element={<ArticleScreen />}
+        />
+        <Route
+          path="/session/:id"
+          element={<SessionScreen />}
         />
       </Routes>
     </Router>

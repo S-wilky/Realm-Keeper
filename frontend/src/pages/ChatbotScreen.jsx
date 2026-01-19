@@ -3,13 +3,11 @@ import { useNavigate } from "react-router-dom";
 import generateQuest from "../../../ai-service/app/quests/generateQuest";
 import generateText from "../utils/generateAIText";
 import generateInputPrompt from "../../../ai-service/app/quests/generateInputPrompt";
-import { saveGeneratedQuest, linkQuestAndTemplate, deleteGeneratedQuest } from "../services/questQueries";
 
 const ChatbotScreen = () => {
     const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
-    const [savedQuests, setSavedQuests] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const handleSend = async () => {

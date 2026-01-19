@@ -14,14 +14,17 @@
     "@supabase/supabase-js": "^2.78.0",
     "@tailwindcss/vite": "^4.1.15",
     "axios": "^1.12.2",
+    "lucide": "^0.562.0",
     "lucide-react": "^0.561.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-icons": "^5.5.0",
+    "react-responsive": "^10.0.1",
     "react-router-dom": "^7.9.4",
     "tailwind-merge": "^3.4.0",
     "tailwind-variants": "^3.2.2",
-    "tailwindcss": "^4.1.15"
+    "tailwindcss": "^4.1.15",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

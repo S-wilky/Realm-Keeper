@@ -5,22 +5,25 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
 import logout from "../services/SessionManagement";
+import fetchUsername from "../utils/fetchUsername";
 import "../styles/overrides.css";
 
 
-import PopupModal from "../components/PopupModal";
-import WorldCreationForm from "../components/WorldCreationForm";
-import CampaignCreationForm from "../components/CampaignCreationForm";
-import ArticleCreationForm from "../components/ArticleCreationForm";
+import PopupModal from "../components/Modals/PopupModal";
+import WorldCreationForm from "../components/Modals/WorldCreationForm";
+import CampaignCreationForm from "../components/Modals/CampaignCreationForm";
+import ArticleCreationForm from "../components/Modals/ArticleCreationForm";
+import SessionCreationForm from "../components/Modals/SessionCreationForm";
 import ChatbotScreen from "./ChatbotScreen";
+import RK_Icon from "../components/RK_Icon";
 
 const initialSectionsData = {
     Worlds: [],
     Campaigns: [],
     Articles: [],
     "AI Chat": ["Chatbot"],
-    Statblocks: [],
     Sessions: [],
+    // Statblocks: [],
 };
 
 const Dashboard = ({ user = "User" }) => {
@@ -47,18 +50,7 @@ const Dashboard = ({ user = "User" }) => {
     useEffect(() => {
         if (!user?.id) return;
 
-        const fetchUsername = async () => {
-            const { data, error } = await supabase
-                .from("profile")
-                .select("username")
-                .eq("profile_id", user.id)
-                .maybeSingle();
-
-            if (error) console.log("Dashboard fetch username error:", error);
-            if (data?.username) setUsername(data.username);
-        };
-
-        fetchUsername();
+        setUsername(fetchUsername(user.id));
     }, [user?.id]);
 
     // Fetch saved popups from Supabase
@@ -78,12 +70,17 @@ const Dashboard = ({ user = "User" }) => {
                 .from("articles")
                 .select("*")
                 .eq("user_id", user.id);
+            const { data: sessions } = await supabase
+                .from("sessions")
+                .select("*")
+                .eq("user_id", user.id);
 
             setSectionsDataState((prev) => ({
                 ...prev,
                 Worlds: worlds || [],
                 Campaigns: campaigns || [],
                 Articles: articles || [],
+                Sessions: sessions || [],
             }));
         };
 
@@ -132,10 +129,25 @@ const Dashboard = ({ user = "User" }) => {
             )
             .subscribe();
 
+        const sessionChannel = supabase
+            .channel("sessions_changes")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "realms", table: "sessions", filter: `user_id=eq.${user.id}` },
+                (payload) => {
+                    setSectionsDataState((prev) => ({
+                        ...prev,
+                        Sessions: [...prev.Sessions, payload.new],
+                    }));
+                }
+            )
+            .subscribe();
+
         return () => {
             supabase.removeChannel(worldChannel);
             supabase.removeChannel(campaignChannel);
             supabase.removeChannel(articleChannel);
+            supabase.removeChannel(sessionChannel);
         };
     }, [user.id]);
 
@@ -182,6 +194,8 @@ const Dashboard = ({ user = "User" }) => {
                                 navigate(`/campaign/${item.campaign_id}`, { state: item });
                             } else if (section === "Articles") {
                                 navigate(`/article/${item.article_id}`, { state: item });
+                            } else if (section === "Sessions") {
+                                navigate(`/session/${item.session_id}`, { state: item });   ///${item.stage_id}
                             }
                         }}
                     >
@@ -277,6 +291,27 @@ const Dashboard = ({ user = "User" }) => {
         handleClosePopup();
     };
 
+    const handleCreateSession = async (data) => {
+        const { data: newSession, error } = await supabase
+            .from("sessions")
+            .insert([{ 
+                title: data.title, 
+                description: data.description, 
+                campaign_id: data.campaign_id || null, 
+                user_id: user.id }])
+            .select()
+            .single();
+
+        if (!error) {
+            setSectionsDataState((prev) => ({
+                ...prev,
+                Sessions: [...prev.Sessions, newSession],
+            }));
+        }
+
+        handleClosePopup();
+    };
+
     return (
         <div className="w-screen h-screen m-0 p-6 overflow-x-hidden bg-[#2C3539] text-[#D9DDDC] font-sans flex flex-col">
             {/* Top bar */}
@@ -296,35 +331,36 @@ const Dashboard = ({ user = "User" }) => {
                 <div className="flex items-center gap-3">
                     {/* Search bar */}
 
-                    <div className="flex items-center bg-[#3A3F47] rounded-full px-3 py-1">
+                    {/* <div className="flex items-center bg-[#3A3F47] rounded-full px-3 py-1">
                         <input
                             type="text"
                             placeholder="Search"
                             className="bg-transparent outline-none text-sm text-gray-200 placeholder-gray-400 px-2 w-32 md:w-48"
                         />
                         <FiSearch className="text-gray-400" />
-                    </div>
+                    </div> */}
 
                     {/* Hamburger icon */}
 
                     <button 
-                        className="bg-pale-orange text-[#D9DDDC] p-3 rounded-full hover:opacity-80 transition" //pale-orange is #EAAC59
+                        className="bg-dusky-blue text-[#D9DDDC] m-0 p-0 rounded-full hover:opacity-80 transition" //pale-orange is #EAAC59
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
                     >
-                        <FiMenu size={20} />
+                        {/* <FiMenu size={20} /> */}
+                        <RK_Icon icon="hamburger" size="sm" color="Abbey"></RK_Icon>
                     </button>
 
                     {isMenuOpen && (
                         <div className="absolute right-6 top-20 bg-[#2C3539] border border-gray-600 rounded-lg shadow-lg p-4 flex flex-col gap-2 z-50"> 
                             <button
                                 onClick={() => navigate("/profile")}
-                                className="bg-pale-orange text-[#D9DDDC] hover:text-white text-left" //pale-orange is #EAAC59
+                                className="bg-dusky-blue text-[#D9DDDC] hover:text-white text-left" //pale-orange is #EAAC59
                             >
                                 Profile
                             </button>
                             <button
                                 onClick={logout}
-                                className="bg-pale-orange text-[#D9DDDC] hover:text-white text-left" //pale-orange is #EAAC59
+                                className="bg-dusky-blue text-[#D9DDDC] hover:text-white text-left" //pale-orange is #EAAC59
                             >
                                 Logout
                             </button>
@@ -353,6 +389,8 @@ const Dashboard = ({ user = "User" }) => {
                                         if (section === "Worlds") handleOpenPopup("world");
                                         else if (section === "Campaigns") handleOpenPopup("campaign");
                                         else if (section === "Articles") handleOpenPopup("article");
+                                        else if (section === "Sessions") handleOpenPopup("session");
+                                        else if (section === "AI Chat") navigate("/chatbot");
                                     }}
                                 >
                                     <FiPlus size={14} />
@@ -388,6 +426,13 @@ const Dashboard = ({ user = "User" }) => {
                             onClose={handleClosePopup}
                             onCreate={handleCreateArticle}
                             worlds={sectionsDataState.Worlds}
+                        />
+                    )}
+                    {activePopup === "session" && (
+                        <SessionCreationForm
+                            onClose={handleClosePopup}
+                            onCreate={handleCreateSession}
+                            campaigns={sectionsDataState.Campaigns}
                         />
                     )}
                 </PopupModal>

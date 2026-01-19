@@ -1,23 +1,72 @@
 /* src/styles/overrides.css */
 .bg-pale-orange {background-color: #EAAC59;}  
 .fill-pale-orange {fill: #EAAC59;}  
+.text-pale-orange {color: #EAAC59;}  
+.border-pale-orange {border-color: #EAAC59;}  
+.outline-pale-orange {outline-color: #EAAC59;}
+
 .bg-slate {background-color: #26282A;}
 .fill-slate {fill: #26282A;}
+.text-slate {color: #26282A;}
+.border-slate {border-color: #26282A;}
+.outline-slate {outline-color: #26282A;}
+
 .bg-gunmetal {background-color: #2C3539;}
 .fill-gunmetal {fill: #2C3539;}
+.text-gunmetal {color: #2C3539;}
+.border-gunmetal {border-color: #2C3539;}
+.outline-gunmetal {outline-color: #2C3539;}
+
 .bg-dusky-blue {background-color: #26538D;}
 .fill-dusky-blue {fill: #26538D;}
+.text-dusky-blue {color: #26538D;}
+.border-dusky-blue {border-color: #26538D;}
+.outline-dusky-blue {outline-color: #26538D;}
+
 .bg-pearl-river {background-color: #D9DDDC;}
 .fill-pearl-river {fill: #D9DDDC;}
+.text-pearl-river {color: #D9DDDC;}
+.border-pearl-river {border-color: #D9DDDC;}
+.outline-pearl-river {outline-color: #D9DDDC;}
+
 .bg-erie {background-color: #1E1E1E;}
 .fill-erie {fill: #1E1E1E;}
+.text-erie {color: #1E1E1E;}
+.border-erie {border-color: #1E1E1E;}
+.outline-erie {outline-color: #1E1E1E;}
+
 .bg-abbey {background-color: #494F55;}
 .fill-abbey {fill: #494F55;}
+.text-abbey {color: #494F55;}
+.border-abbey {border-color: #494F55;}
+.outline-abbey {outline-color: #494F55;}
+
 .bg-navy {background-color: #000080;}
 .fill-navy {fill: #000080;}
+.text-navy {color: #000080;}
+.border-navy {border-color: #000080;}
+.outline-navy {outline-color: #000080;}
+
 .bg-steel {background-color: #777B7E;}
 .fill-steel {fill: #777B7E;}
+.text-steel {color: #777B7E;}
+.border-steel {border-color: #777B7E;}
+.outline-steel {outline-color: #777B7E;}
+
 .bg-bright-cerulean {background-color: #1DACD6;}
 .fill-bright-cerulean {fill: #1DACD6;}
+.text-bright-cerulean {color: #1DACD6;}
+.border-bright-cerulean {border-color: #1DACD6;}
+.outline-bright-cerulean {outline-color: #1DACD6;}
+
 .bg-sunshade {background-color: #FF9E2C;}
 .fill-sunshade {fill: #FF9E2C;}
+.text-sunshade {color: #FF9E2C;}
+.border-sunshade {border-color: #FF9E2C;}
+.outline-sunshade {outline-color: #FF9E2C;}
+
+.bg-red {background-color: #FF0000;}
+.fill-red {fill: #FF0000;}
+.text-red {color: #FF0000;}
+.border-red {border-color: #FF0000;}
+.outline-red {outline-color: #FF0000;}
