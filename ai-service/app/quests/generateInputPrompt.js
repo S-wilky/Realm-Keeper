@@ -11,12 +11,13 @@ async function generateInputPrompt() {
 
     // 1. Pick a random template
     const { data, error } = await supabase
+        .schema('public')
         .from('input_templates')
         .select()   //Add filters here. Potential to reduce payload?
     // console.log('Prompts: ', data);
     if (error) throw error;
     const prompt = pickRandom(data);
-    // console.log('Selected Prompt: ', prompt);
+    console.log('Selected Prompt: ', prompt);
 
     // 2. Get required fields
     const fields = prompt.required_fields;
@@ -30,7 +31,7 @@ async function generateInputPrompt() {
             fillableFields[field] = pickRandom(verbs);
         } else if (field == "quest_type") {
             //TODO: INSERT quest_type logic here
-            const quest_types = await supabase.from('quest_templates').select('quest_type')     //Still need to remove duplicated here? Right now it's weighted so maybe it's fine.
+            const quest_types = await supabase.schema('public').from('quest_templates').select('quest_type')     //Still need to remove duplicated here? Right now it's weighted so maybe it's fine.
             // console.log('Quest types: ', quest_types);
             picked_quest_type = pickRandom(quest_types.data);
             fillableFields[field] = picked_quest_type.quest_type;
@@ -43,7 +44,7 @@ async function generateInputPrompt() {
                 table = field + 's';
             }
             // console.log('table', table);
-            const res = await supabase.from(table).select();
+            const res = await supabase.schema('public').from(table).select();
             // console.log('Returned Data:', res)
             // client.query(`SELECT * FROM ${field}s`);  // factions, locations, objects, enemies
             const picked_prompt = pickRandom(res.data);

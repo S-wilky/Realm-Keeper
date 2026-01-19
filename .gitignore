@@ -16,3 +16,18 @@ build/
 
 # OS
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Env
+.env
+.env.*
+
+# Large AI model checkpoints
+ai-service/phi3_qlora_out/

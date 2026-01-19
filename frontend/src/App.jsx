@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import supabase from "./services/supabase-client";
 import Splash from "./components/Splash";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "./pages/Dashboard";
 import LoginSignupForm from "./components/LoginSignupForm";
-import ChatbotScreen from "./components/ChatbotScreen";
+import ChatbotScreen from "./pages/ChatbotScreen";
 import "./App.css";
 import logo from "./assets/RealmKeeperLogoSVG1.svg";
-import ProfileScreen from "./components/ProfileScreen";
-import WorldScreen from "./components/WorldScreen";
-import CampaignScreen from "./components/CampaignScreen";
-import ArticleScreen from "./components/ArticleScreen";
+import ProfileScreen from "./pages/ProfileScreen";
+import WorldScreen from "./pages/WorldScreen";
+import CampaignScreen from "./pages/CampaignScreen";
+import ArticleScreen from "./pages/ArticleScreen";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);

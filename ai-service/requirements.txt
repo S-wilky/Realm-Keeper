@@ -5,3 +5,8 @@ accelerate
 torch
 sentencepiece
 bitsandbytes
+openai
+supabase
+python-dotenv
+httpx
+pydantic
