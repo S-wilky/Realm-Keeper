@@ -84,8 +84,8 @@ export default function MapStage({
       className="absolute top-0 left-0 origin-top-left"
       style={{
         transform: `translate(${camera.x}px, ${camera.y}px) scale(${camera.zoom})`,
-        width: "5000px",
-        height: "5000px"
+        width: "4000px",
+        height: "4000px"
       }}
     >
       {/* World Background */}

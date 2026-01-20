@@ -1,8 +1,5 @@
 import { useEffect, useRef } from "react";
 
-// const GRID_SIZE = 50;
-// const WORLD_SIZE = 5000;
-
 export default function GridCanvas({ WORLD_X, WORLD_Y, GRID_SIZE }) {
   const canvasRef = useRef(null);
 
