@@ -15,7 +15,7 @@ async function generateText(prompt) {
     }
   console.log("JSON sent: ", JSONSENT);
   try {
-    const response = await fetch("${import.meta.env.AI_SERVICE_URL}/generate", JSONSENT);
+    const response = await fetch(`${import.meta.env.VITE_AI_SERVICE_URL}/generate`, JSONSENT);
     const data = await response.json();
     console.log("JSON received: ", data);
     return data.response; // This matches {"response": "..."} from FastAPI
