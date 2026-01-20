@@ -21,7 +21,7 @@ const buttonStyles = tv({
             standard: "bg-dusky-blue",
             accent: "bg-pale-orange",
             confirm: "bg-green-500",
-            danger: "bg-red-500"
+            danger: "bg-red"
         },
         size: {
             sm: "text-sm p-2",
