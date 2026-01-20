@@ -9,7 +9,7 @@ os.environ["ACCELERATE_DISABLE_MPS_FALLBACK"] = "1"
 
 BASE_MODEL = "microsoft/phi-3-mini-4k-instruct"
 # LORA_DIR = "phi3_qlora_out"
-HF_MODEL = "Eckkeh/rk-phi3-model"
+HF_MODEL = os.getenv("AI_SERVICE_URL")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 # Load tokenizer
