@@ -8,7 +8,9 @@ os.environ["NO_ACCELERATE"] = "1"
 os.environ["ACCELERATE_DISABLE_MPS_FALLBACK"] = "1"
 
 BASE_MODEL = "microsoft/phi-3-mini-4k-instruct"
-LORA_DIR = "phi3_qlora_out"
+# LORA_DIR = "phi3_qlora_out"
+HF_MODEL = "Eckkeh/rk-phi3-model"
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 # Load tokenizer
 tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, use_fast=True)
@@ -33,7 +35,7 @@ model = AutoModelForCausalLM.from_pretrained(
 model.resize_token_embeddings(len(tokenizer))
 
 # Load LoRA adapter
-model = PeftModel.from_pretrained(model, LORA_DIR)
+model = PeftModel.from_pretrained(model, HF_MODEL, use_auth_token=HF_TOKEN)
 model.eval()
 
 # Wrap generation in a function
