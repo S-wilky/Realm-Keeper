@@ -74,6 +74,19 @@ async def generate(req: GenerateRequest):
 
     return {"response": result}
 
+from fastapi import Response
+
+@app.options("/generate")
+async def generate_options():
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "https://realmkeeper.netlify.app",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
+
 @app.post("/embed-article")
 async def embed_article(req: EmbedArticleRequest):
     """
