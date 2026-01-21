@@ -5,8 +5,8 @@ from pydantic import BaseModel
 import os
 import openai 
 
-from app.model.phi3Model import generate_quest_from_prompt
-from app.rag import fetch_context
+# from app.model.phi3Model import generate_quest_from_prompt
+# from app.rag import fetch_context
 from supabase import create_client
 
 supabase = create_client(
@@ -21,8 +21,11 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     # allow_origins=["http://localhost:5173"],
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=[
+        "https://realmkeeper.netlify.app",
+        "http://localhost:5173",
+    ],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -50,6 +53,10 @@ class EmbedArticleRequest(BaseModel):
 
 @app.post("/generate")
 async def generate(req: GenerateRequest):
+    from app.model.phi3Model import generate_quest_from_prompt
+    from app.rag import fetch_context
+
+
     context = fetch_context(req.prompt)
 
     full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
