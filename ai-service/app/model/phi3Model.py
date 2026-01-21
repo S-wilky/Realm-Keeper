@@ -13,7 +13,7 @@ import requests
 HF_MODEL = "Eckkeh/rk-phi3-model"
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-HF_API_URL = f"https://router.huggingface.co/api/text-generation/{HF_MODEL}"
+HF_API_URL = f"https://router.huggingface.co/models/{HF_MODEL}"
 
 HEADERS = {
     "Authorization": f"Bearer {HF_TOKEN}",
