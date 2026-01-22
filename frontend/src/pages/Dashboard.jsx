@@ -320,7 +320,8 @@ const Dashboard = ({ user = "User" }) => {
             
             <div className="flex items-center justify-between mb-8">
                 <img
-                    src="/src/assets/RealmKeeperLogo.png"
+                    // src="/src/assets/RealmKeeperLogo.png"
+                    src="https://xkrrvlwvkmygmxcrqauq.supabase.co/storage/v1/object/public/realm-assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-20 h-20"
                 />

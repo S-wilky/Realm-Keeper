@@ -67,7 +67,8 @@ const ChatbotScreen = () => {
             <div className="flex justify-between items-center mb-4">
                 <img
                     //onClick={logout}
-                    src="/src/assets/RealmKeeperLogo.png"
+                    // src="/src/assets/RealmKeeperLogo.png"
+                    src="https://xkrrvlwvkmygmxcrqauq.supabase.co/storage/v1/object/public/realm-assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-15 h-15"
                     onClick={() => navigate("/")}
