@@ -1,48 +1,46 @@
-import os
-import requests
-# import torch
-# from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-# from peft import PeftModel
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
 
 # # Disable accelerate auto-dispatch
 # os.environ["NO_ACCELERATE"] = "1"
 # os.environ["ACCELERATE_DISABLE_MPS_FALLBACK"] = "1"
 
-# BASE_MODEL = "microsoft/phi-3-mini-4k-instruct"
-# LORA_DIR = "phi3_qlora_out"
-HF_MODEL = "Eckkeh/rk-phi3-model"
-HF_TOKEN = os.getenv("HF_TOKEN")
+BASE_MODEL = "microsoft/phi-3-mini-4k-instruct"
+LORA_MODEL = "Eckkeh/rk-phi3-model"
+# HF_MODEL = "Eckkeh/rk-phi3-model"
+# HF_TOKEN = os.getenv("HF_TOKEN")
 
-HF_API_URL = f"https://router.huggingface.co/models/{HF_MODEL}"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-HEADERS = {
-    "Authorization": f"Bearer {HF_TOKEN}",
-    "Content-Type": "application/json",
-}
+# HF_API_URL = f"https://router.huggingface.co/models/{HF_MODEL}"
+
+# HEADERS = {
+#     "Authorization": f"Bearer {HF_TOKEN}",
+#     "Content-Type": "application/json",
+# }
 
 # # Load tokenizer
-# tokenizer = AutoTokenizer.from_pretrained(HF_MODEL, use_fast=True)
-# if tokenizer.pad_token is None:
-#     tokenizer.add_special_tokens({"pad_token": "<|pad|>"})
+tokenizer = AutoTokenizer.from_pretrained(
+    BASE_MODEL, 
+    use_fast=True,
+    )
 
-# Load base mode (4-bit)
-# bnb_config = BitsAndBytesConfig(
-#     load_in_4bit=True,
-#     bnb_4bit_compute_dtype=torch.float16,
-#     bnb_4bit_use_double_quant=True,
-#     bnb_4bit_quant_type="nf4",
-# )
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
 
-# model = AutoModelForCausalLM.from_pretrained(
-#     HF_MODEL,
-#     # device_map="auto",
-#     # quantization_config=bnb_config,
-#     # torch_dtype=torch.float16,
-#     use_auth_token=HF_TOKEN,
-#     torch_dtype=torch.float16
-# )
+model = AutoModelForCausalLM.from_pretrained(
+    BASE_MODEL,
+    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+    device_map="auto" if device == "cuda" else None,
+)
 
-# model.eval()
+model = PeftModel.from_pretrained(model, LORA_MODEL)
+
+model.eval()
+
+if device == "cpu":
+    model.to("cpu")
 
 # model.resize_token_embeddings(len(tokenizer))
 
@@ -59,42 +57,64 @@ def generate_quest_from_prompt(user_input: str, max_tokens=150, temperature=0.7,
     <|assistant|>
     """
 
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": max_tokens,
-            "temperature": temperature,
-            "top_p": top_p,
-            "do_sample": True,
-            "return_full_text": False,
-        },
-        "options": {
-            "wait_for_model": True
-        }
-    }
-
-    response = requests.post(
-        HF_API_URL,
-        headers=HEADERS,
-        json=payload,
-        timeout=120,
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        add_special_tokens=False
     )
 
-    if response.status_code != 200:
-        raise RuntimeError(
-            f"Hugging Face API error {response.status_code}: {response.text}"
+    if device == "cuda":
+        inputs = {k: v.cuda() for k, v in inputs.items()}
+
+    with torch.no_grad():
+        output = model.generate(
+            **inputs,
+            max_new_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            do_sample=True,
+            pad_token_id=tokenizer.eos_token_id,
         )
+
+    generated = output[0][inputs["input_ids"].shape[-1]:]
+    return tokenizer.decode(generated, skip_special_tokens=True).strip()
+
+    # payload = {
+    #     "inputs": prompt,
+    #     "parameters": {
+    #         "max_new_tokens": max_tokens,
+    #         "temperature": temperature,
+    #         "top_p": top_p,
+    #         "do_sample": True,
+    #         "return_full_text": False,
+    #     },
+    #     "options": {
+    #         "wait_for_model": True
+    #     }
+    # }
+
+    # response = requests.post(
+    #     HF_API_URL,
+    #     headers=HEADERS,
+    #     json=payload,
+    #     timeout=120,
+    # )
+
+    # if response.status_code != 200:
+    #     raise RuntimeError(
+    #         f"Hugging Face API error {response.status_code}: {response.text}"
+    #     )
     
-    result = response.json()
+    # result = response.json()
 
     # HF can return different shapes depending on backend
-    if isinstance(result, list) and "generated_text" in result[0]:
-        return result[0]["generated_text"].strip()
+    # if isinstance(result, list) and "generated_text" in result[0]:
+    #     return result[0]["generated_text"].strip()
     
-    if isinstance(result, dict) and "generated_text" in result:
-        return result["generated_text"].strip()
+    # if isinstance(result, dict) and "generated_text" in result:
+    #     return result["generated_text"].strip()
     
-    raise RuntimeError(f"Unexpected HF response format: {result}")
+    # raise RuntimeError(f"Unexpected HF response format: {result}")
 
     # inputs = tokenizer(prompt, return_tensors="pt", add_special_tokens=False).to(model.device)
 

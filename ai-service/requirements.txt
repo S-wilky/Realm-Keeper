@@ -4,7 +4,6 @@ transformers
 accelerate
 torch
 sentencepiece
-bitsandbytes
 openai
 supabase
 python-dotenv
