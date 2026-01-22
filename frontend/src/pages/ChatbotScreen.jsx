@@ -10,6 +10,8 @@ const ChatbotScreen = () => {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
 
+    document.title = "Realm Keeper | Chatbot";
+
     const handleSend = async () => {
         setLoading(true);
 

@@ -16,6 +16,8 @@ const CampaignScreen = () => {
     const [description, setDescription] = useState(initialDescription);
     const [isEditing, setIsEditing] = useState(false);
 
+    document.title = "Realm Keeper | Campaign";
+
     if (!state) return <p>No campaign data found.</p>;
 
     const handleSave = async () => {

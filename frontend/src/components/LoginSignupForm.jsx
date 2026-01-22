@@ -8,6 +8,7 @@ function LoginSignupForm({ onSignIn }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [confEmailSent, setConfEmailSent] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -16,11 +17,18 @@ function LoginSignupForm({ onSignIn }) {
 
     try {
       if (isSignUp) {
-        const { error: signUpError } = await supabase.auth.signUp({
+        //TODO: Figure out how to check current users here and tell them to log in if user exists.
+
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
         });
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          throw signUpError
+        } else {
+          console.log(data);
+          setConfEmailSent(true);
+        }
       } else {
         const { error: signInError } =
           await supabase.auth.signInWithPassword({
@@ -93,6 +101,12 @@ function LoginSignupForm({ onSignIn }) {
           <p className="text-red-400 text-sm mb-4 text-center">{error}</p>
         )}
 
+        {confEmailSent && (
+          <p className="text-red-400 text-sm mb-4 text-center">
+            If email <strong>{email}</strong> exists and does not already have an associated account, you will see a confirmation email appear in your inbox shortly.
+            </p>
+        )}
+
         <button
           type="submit"
           disabled={loading}
@@ -126,7 +140,10 @@ function LoginSignupForm({ onSignIn }) {
 
         <button
           type="button"
-          onClick={() => setIsSignUp(!isSignUp)}
+          onClick={() => {
+            setIsSignUp(!isSignUp);
+            setConfEmailSent(false);
+          }}
           className="text-[#D9DDDC] underline hover:opacity-80 transition"
         >
           {isSignUp ? "Switch to Sign In" : "Create Account"}

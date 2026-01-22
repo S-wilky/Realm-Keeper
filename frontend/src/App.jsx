@@ -18,6 +18,8 @@ function App() {
   // const [username, setUsername] = useState("");
   const [session, setSession] = useState(null);
 
+  document.title = "Realm Keeper";
+
   async function fetchSession() {
     const currentSession = await supabase.auth.getSession();
     setSession(currentSession.data.session);
