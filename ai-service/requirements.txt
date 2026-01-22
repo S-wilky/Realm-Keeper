@@ -10,3 +10,5 @@ supabase
 python-dotenv
 httpx
 pydantic
+peft
+huggingface_hub

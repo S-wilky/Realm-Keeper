@@ -5,8 +5,8 @@ from pydantic import BaseModel
 import os
 import openai 
 
-from app.model.phi3Model import generate_quest_from_prompt
-from app.rag import fetch_context
+# from app.model.phi3Model import generate_quest_from_prompt
+# from app.rag import fetch_context
 from supabase import create_client
 
 supabase = create_client(
@@ -21,7 +21,11 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     # allow_origins=["http://localhost:5173"],
-    allow_origins=["*"],
+    allow_origins=[
+        "https://realmkeeper.netlify.app",
+        "https://www.realmkeeper.netlify.app",
+        "http://localhost:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -50,6 +54,10 @@ class EmbedArticleRequest(BaseModel):
 
 @app.post("/generate")
 async def generate(req: GenerateRequest):
+    from app.model.phi3Model import generate_quest_from_prompt
+    from app.rag import fetch_context
+
+
     context = fetch_context(req.prompt)
 
     full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
@@ -65,6 +73,19 @@ async def generate(req: GenerateRequest):
     # result = outputs[0].outputs[0].text.strip()
 
     return {"response": result}
+
+from fastapi import Response
+
+@app.options("/generate")
+async def generate_options():
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "https://realmkeeper.netlify.app",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
 
 @app.post("/embed-article")
 async def embed_article(req: EmbedArticleRequest):
