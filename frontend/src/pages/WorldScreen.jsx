@@ -17,6 +17,8 @@ const WorldScreen = () => {
     const [description, setDescription] = useState(initialDescription);
     const [isEditing, setIsEditing] = useState(false);
 
+    document.title = "Realm Keeper | World";
+
     if (!state) return <p>No world data found.</p>;
 
     const handleSave = async () => {

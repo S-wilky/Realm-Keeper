@@ -34,6 +34,8 @@ const Dashboard = ({ user = "User" }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [username, setUsername] = useState("");
 
+    document.title = "Realm Keeper | Dashboard";
+
     useEffect(() => {
         const getSession = async () => {
             const { data, error } = await supabase.auth.getSession();
@@ -318,8 +320,8 @@ const Dashboard = ({ user = "User" }) => {
             
             <div className="flex items-center justify-between mb-8">
                 <img
-                    //onClick={logout}
-                    src="/src/assets/RealmKeeperLogo.png"
+                    // src="/src/assets/RealmKeeperLogo.png"
+                    src="https://xkrrvlwvkmygmxcrqauq.supabase.co/storage/v1/object/public/realm-assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-20 h-20"
                 />

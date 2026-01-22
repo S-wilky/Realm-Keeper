@@ -9,6 +9,8 @@ const ProfileScreen = ({ user }) => {
     const [username, setUsername] = useState("");
     const navigate = useNavigate();
 
+    document.title = "Realm Keeper | Profile";
+
     useEffect(() => {
         if (!user?.id) return;
         // Fetch existing username if exists

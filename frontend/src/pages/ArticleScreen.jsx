@@ -35,6 +35,8 @@ const ArticleScreen = () => {
     const inputRef = useRef(null);
     const measureRef = useRef(null);
 
+    document.title = "Realm Keeper | Article";
+
     useEffect(() => {
         if (!isEditingTitle) return;
         if (!inputRef.current || !measureRef.current) return;
@@ -50,7 +52,7 @@ const ArticleScreen = () => {
         let article_id_to_use = article_id; // use existing ID if editing
 
         try {
-            let result;
+            // let result;
 
             if (article_id_to_use) {
                 // Existing article -> update

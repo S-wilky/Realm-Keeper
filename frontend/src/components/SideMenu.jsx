@@ -7,7 +7,8 @@ export default function SideMenu() {
     return <div className="m-0 p-3 sticky bg-erie flex flex-col items-center top-0 w-25 h-screen gap-5">
                 <img
                     onClick={() => navigate("/")}
-                    src="/src/assets/RealmKeeperLogo.png"
+                    // src="/src/assets/RealmKeeperLogo.png"
+                    src="https://xkrrvlwvkmygmxcrqauq.supabase.co/storage/v1/object/public/realm-assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-20 h-20 mb-10 self-center cursor-pointer"
                 />

@@ -67,6 +67,8 @@ const SessionScreen = () => {
         zoom: 1
     })
 
+    document.title = "Realm Keeper | Session";
+
     // const isSmallScreen = useMediaQuery({query: '(max-width: 1224px)'})
 
     // useEffect(() => {
