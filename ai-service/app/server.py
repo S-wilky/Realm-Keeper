@@ -54,8 +54,8 @@ class EmbedArticleRequest(BaseModel):
 
 @app.post("/generate")
 async def generate(req: GenerateRequest):
-    from phi3Model import generate_quest_from_prompt
-    from rag import fetch_context
+    from app.phi3Model import generate_quest_from_prompt
+    from app.rag import fetch_context
 
 
     context = fetch_context(req.prompt)
