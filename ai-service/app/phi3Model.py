@@ -39,7 +39,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 model.resize_token_embeddings(len(tokenizer))
 
-model = PeftModel.from_pretrained(model, LORA_MODEL)
+model = PeftModel.from_pretrained(model, LORA_MODEL, ignore_mismatched_sizes=True)
 
 model.eval()
 
