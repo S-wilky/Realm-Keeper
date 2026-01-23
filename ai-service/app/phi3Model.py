@@ -6,7 +6,7 @@ from peft import PeftModel
 # os.environ["NO_ACCELERATE"] = "1"
 # os.environ["ACCELERATE_DISABLE_MPS_FALLBACK"] = "1"
 
-BASE_MODEL = "microsoft/phi-3-mini-4k-instruct@main"
+BASE_MODEL = "microsoft/phi-3-mini-4k-instruct"
 LORA_MODEL = "Eckkeh/rk-phi3-model"
 # HF_MODEL = "Eckkeh/rk-phi3-model"
 # HF_TOKEN = os.getenv("HF_TOKEN")
@@ -24,6 +24,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 tokenizer = AutoTokenizer.from_pretrained(
     BASE_MODEL, 
     use_fast=True,
+    revision="main",
     )
 
 if tokenizer.pad_token is None:
@@ -31,6 +32,7 @@ if tokenizer.pad_token is None:
 
 model = AutoModelForCausalLM.from_pretrained(
     BASE_MODEL,
+    revision="main",
     torch_dtype=torch.float16 if device == "cuda" else torch.float32,
     device_map="auto" if device == "cuda" else None,
 )
