@@ -6,7 +6,7 @@ from peft import PeftModel
 # os.environ["NO_ACCELERATE"] = "1"
 # os.environ["ACCELERATE_DISABLE_MPS_FALLBACK"] = "1"
 
-BASE_MODEL = "microsoft/phi-3-mini-4k-instruct"
+BASE_MODEL = "microsoft/phi-3-mini-4k-instruct@main"
 LORA_MODEL = "Eckkeh/rk-phi3-model"
 # HF_MODEL = "Eckkeh/rk-phi3-model"
 # HF_TOKEN = os.getenv("HF_TOKEN")
