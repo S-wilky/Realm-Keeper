@@ -37,6 +37,8 @@ model = AutoModelForCausalLM.from_pretrained(
     device_map="auto" if device == "cuda" else None,
 )
 
+model.resize_token_embeddings(len(tokenizer))
+
 model = PeftModel.from_pretrained(model, LORA_MODEL)
 
 model.eval()
