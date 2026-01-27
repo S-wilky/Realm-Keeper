@@ -100,30 +100,21 @@ async def embed_article(req: EmbedArticleRequest):
         text_to_embed = f"{req.title}\n\n{req.body}"
 
         response = openai.Embedding.create(
-            input=req.body,
+            input=text_to_embed,
             model="text-embedding-3-small"
         )
         embedding_vector = [float(x) for x in response["data"][0]["embedding"]]
 
-        supabase_response = supabase.from_("articles").update({
+        data, error = supabase.from_("articles").update({
             "embedding_vector": embedding_vector
         }).eq("article_id", req.article_id).execute()
 
-        if supabase_response.error:
-            print("Supabase error:", supabase_response.error)
-            return {"success": False, "error": str(supabase_response.error)}
+        if error:
+            print("Supabase error:", error)
+            return {"success": False, "error": str(error)}
         
         print("Updated embedding for article:", req.article_id)
-        return {"success": True, "data": supabase_response.data}
-
-        # data, error = supabase.table("articles").update({
-        #     "embedding_vector": embedding_vector
-        # }).eq("article_id", req.article_id).execute()
-
-        # if error:
-        #     return {"success": False, "error": str(error)}
-        
-        # return {"success": True, "data": data}
+        return {"success": True, "data": data}
     
     except Exception as e:
         print("Embedding error:", e)
@@ -131,6 +122,17 @@ async def embed_article(req: EmbedArticleRequest):
             "success": False,
             "error": str(e)
         }
+
+        # supabase_response = supabase.from_("articles").update({
+        #     "embedding_vector": embedding_vector
+        # }).eq("article_id", req.article_id).execute()
+
+        # if supabase_response.error:
+        #     print("Supabase error:", supabase_response.error)
+        #     return {"success": False, "error": str(supabase_response.error)}
+        
+        # print("Updated embedding for article:", req.article_id)
+        # return {"success": True, "data": supabase_response.data}
 
 # run this to start server:
 # uvicorn app.server:app --host 0.0.0.0 --port 8000
