@@ -99,11 +99,12 @@ async def embed_article(req: EmbedArticleRequest):
         
         text_to_embed = f"{req.title}\n\n{req.body}"
 
-        response = openai.Embedding.create(
+        response = openai.embeddings.create(
             input=text_to_embed,
             model="text-embedding-3-small"
         )
-        embedding_vector = [float(x) for x in response["data"][0]["embedding"]]
+        embedding_vector = response.data[0].embedding
+        # embedding_vector = [float(x) for x in response["data"][0]["embedding"]]
 
         data, error = supabase.from_("articles").update({
             "embedding_vector": embedding_vector
