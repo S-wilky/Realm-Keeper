@@ -88,7 +88,7 @@ const ArticleCreationForm = ({ onClose, onCreate, worlds }) => {
             const res = await fetch(`${import.meta.env.VITE_AI_SERVICE_URL}/embed-article`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ article_id: articleId, body }),
+                body: JSON.stringify({ article_id: articleId, title: title, body: body }),
             });
 
             const embedData = await res.json();

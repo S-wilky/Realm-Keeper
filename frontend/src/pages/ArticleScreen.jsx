@@ -87,7 +87,7 @@ const ArticleScreen = () => {
             const res = await fetch (`${import.meta.env.VITE_AI_SERVICE_URL}/embed-article`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ article_id: article_id_to_use, body }),
+                body: JSON.stringify({ article_id: article_id_to_use, title: title, body: body }),
             });
 
             const embedData = await res.json();
