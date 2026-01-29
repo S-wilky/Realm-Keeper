@@ -15,7 +15,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-def fetch_context(user_input: str, match_count: int = 3) -> str:
+def fetch_context(user_input: str, match_count: int = 3, min_similarity: float = 0.75) -> str:
     # query_embedding = embedding_model.encode(user_input).tolist()
     """
     Fetch top matching articles from Supabase based on the user's input.
@@ -39,7 +39,13 @@ def fetch_context(user_input: str, match_count: int = 3) -> str:
     if not response.data:
         return ""
     
-    context_blocks = [article["body"] for article in response.data if article.get("body")]
+    context_blocks = []
+    for article in response.data:
+        similarity = article.get("similarity")
+        if similarity and similarity >= min_similarity and article.get("body"):
+            context_blocks.append(article["body"])
+            
+    # context_blocks = [article["body"] for article in response.data if article.get("body")]
 
     return "\n\n---\n\n".join(context_blocks)
 
