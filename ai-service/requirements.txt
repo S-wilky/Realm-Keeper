@@ -11,3 +11,4 @@ httpx
 pydantic
 peft
 huggingface_hub
+sentence-transformers
