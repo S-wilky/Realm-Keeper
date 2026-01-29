@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
-import openai 
+from openai import OpenAI
 
 # from app.model.phi3Model import generate_quest_from_prompt
 # from app.rag import fetch_context
@@ -14,7 +14,8 @@ supabase = create_client(
     os.environ["SUPABASE_SECRET_KEY"]
 )
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = FastAPI()
 
@@ -99,23 +100,32 @@ async def embed_article(req: EmbedArticleRequest):
         
         text_to_embed = f"{req.title}\n\n{req.body}"
 
-        response = openai.embeddings.create(
+        response = client.embeddings.create(
             input=text_to_embed,
             model="text-embedding-3-small"
         )
         embedding_vector = response.data[0].embedding
         # embedding_vector = [float(x) for x in response["data"][0]["embedding"]]
 
-        data, error = supabase.schema("realms").from_("articles").update({
-            "embedding_vector": embedding_vector
-        }).eq("article_id", req.article_id).execute()
+        response = supabase.schema("realms").table("articles") \
+            .update({"embedding_vector": embedding_vector}) \
+            .eq("article_id", req.article_id) \
+            .execute()
+        
+        if not response.data:
+            print("Supabase error:", response)
+            return {"success": False, "error": str(response)}
 
-        if error:
-            print("Supabase error:", error)
-            return {"success": False, "error": str(error)}
+        # data, error = supabase.schema("realms").from_("articles").update({
+        #     "embedding_vector": embedding_vector
+        # }).eq("article_id", req.article_id).execute()
+
+        # if error:
+        #     print("Supabase error:", error)
+        #     return {"success": False, "error": str(error)}
         
         print("Updated embedding for article:", req.article_id)
-        return {"success": True, "data": data}
+        return {"success": True, "data": response.data}
     
     except Exception as e:
         print("Embedding error:", e)
