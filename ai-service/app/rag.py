@@ -1,5 +1,6 @@
 from supabase import create_client
 # from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 import os
 from dotenv import load_dotenv
 
@@ -12,17 +13,25 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
 def fetch_context(user_input: str, match_count: int = 3) -> str:
     # query_embedding = embedding_model.encode(user_input).tolist()
     """
     Fetch top matching articles from Supabase based on the user's input.
-    No embeding is done in python; Supabase handles similarity search.
+    Uses OpenAI embeddings (1536-dim) to match Supabase vector schema.
     """
+
+    response = client.embeddings.create(
+        input=user_input,
+        model="text-embedding-3-small"
+    )
+    query_embedding = response.data[0].embedding
 
     response = supabase.rpc(
         "match_articles",
         {
-            "query_text": user_input,
+            "query_embedding": query_embedding,
             "match_count": match_count
         }
     ).execute()
