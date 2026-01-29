@@ -106,7 +106,7 @@ async def embed_article(req: EmbedArticleRequest):
         embedding_vector = response.data[0].embedding
         # embedding_vector = [float(x) for x in response["data"][0]["embedding"]]
 
-        data, error = supabase.from_("articles").update({
+        data, error = supabase.schema("realms").from_("articles").update({
             "embedding_vector": embedding_vector
         }).eq("article_id", req.article_id).execute()
 
