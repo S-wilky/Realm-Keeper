@@ -55,26 +55,34 @@ class EmbedArticleRequest(BaseModel):
 
 @app.post("/generate")
 async def generate(req: GenerateRequest):
-    from phi3Model import generate_quest_from_prompt
-    from rag import fetch_context
+    try:
+
+        from phi3Model import generate_quest_from_prompt
+        from rag import fetch_context
 
 
-    context = fetch_context(req.prompt)
-    print("RAG CONTEXT:\n", context)
+        context = fetch_context(req.prompt)
+        print("RAG CONTEXT:\n", context)
 
-    full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
+        full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
 
-    result = generate_quest_from_prompt(
-        user_input=full_prompt,
-        max_tokens=req.max_tokens,
-        temperature=req.temperature,
-        top_p=req.top_p,
-    )
+        result = generate_quest_from_prompt(
+            user_input=full_prompt,
+            max_tokens=req.max_tokens,
+            temperature=req.temperature,
+            top_p=req.top_p,
+        )
 
     # outputs = llm.generate(req.prompt, params)
     # result = outputs[0].outputs[0].text.strip()
 
-    return {"response": result}
+        return {"response": result}
+    
+    except Exception as e:
+        print("ERROR in /generate:", e)
+        return {"error": str(e)}
+
+
 
 from fastapi import Response
 
