@@ -64,7 +64,23 @@ async def generate(req: GenerateRequest):
         context = fetch_context(req.prompt)
         print("RAG CONTEXT:\n", context)
 
-        full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
+        # full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
+
+        if context == "NO_RELEVANT_CONTEXT":
+            return {
+                "response": "I couldn't find anything about that in your world data."
+            }
+        
+        full_prompt = f"""You are a world-building assistant.
+        ONLY answer using the information in the Context section below.
+        If the answer is not contained in the context, say you do not know.
+
+        Context:
+        {context}
+
+        Question:
+        {req.prompt}
+        """
 
         result = generate_quest_from_prompt(
             user_input=full_prompt,
