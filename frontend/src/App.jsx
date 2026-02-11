@@ -5,6 +5,7 @@ import Splash from "./components/Splash";
 import Dashboard from "./pages/Dashboard";
 import LoginSignupForm from "./components/LoginSignupForm";
 import ChatbotScreen from "./pages/ChatbotScreen";
+import AIModeSelector from "./pages/AIModeSelector";
 import "./App.css";
 import logo from "./assets/RealmKeeperLogoSVG1.svg";
 import ProfileScreen from "./pages/ProfileScreen";
@@ -71,7 +72,9 @@ function App() {
         />
 
         {/* Chatbot route */}
-        <Route path="/chatbot" element={<ChatbotScreen />} />
+        <Route path="/chatbot" element={<AIModeSelector />} />
+
+        <Route path="/chatbot/chat" element={<ChatbotScreen />} />
 
         {/* Profile Screen route */}
         <Route

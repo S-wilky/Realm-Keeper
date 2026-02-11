@@ -1,11 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 // import generateQuest from "../../../ai-service/app/quests/generateQuest";
 import generateText from "../utils/generateAIText";
 // import generateInputPrompt from "../../../ai-service/app/quests/generateInputPrompt";
 
 const ChatbotScreen = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get selected AI mode
+    const mode = location.state?.mode || "lore";
+
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -17,6 +22,7 @@ const ChatbotScreen = () => {
 
         if (!input.trim()) //return;
         {
+            setLoading(false);
             return;
 
             // console.warn("test");
@@ -41,7 +47,7 @@ const ChatbotScreen = () => {
             // Placeholder for backend integration:
             let response = "";
             try {
-                response = await generateText(input);
+                response = await generateText(input, mode);
             } catch (err) {
                 console.error("Generation failed: ", err);
                 response = "Error: Could not generate text.";
@@ -73,7 +79,10 @@ const ChatbotScreen = () => {
                     className="w-15 h-15"
                     onClick={() => navigate("/")}
                 />
-                <h1 className="text-3xl font-semibold">AI Chatbot</h1>
+                <h1 className="text-3xl font-semibold">
+                    {mode === "quest" ? "Quest Generator" : "Lore Keeper"}
+                </h1>
+                {/* <h1 className="text-3xl font-semibold">AI Chatbot</h1> */}
                 <button
                     onClick={() => navigate("/")}
                     className="bg-pale-orange px-4 py-2 rounded hover:opacity-80"
@@ -104,7 +113,8 @@ const ChatbotScreen = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     className="flex-1 px-3 py-2 rounded bg-[#3A3F47] text-[#D9DDDC]"
-                    placeholder="Type your message..."
+                    placeholder={`Ask the ${mode === "quest" ? "Quest Generator" : "Lore Keeper"}...`}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 />
                 <button onClick={handleSend} className="px-4 py-2 bg-pale-orange rounded">
                     Send

@@ -1,13 +1,16 @@
 
-async function generateText(prompt) {
+async function generateText(prompt, mode = "lore") {
   console.log("Prompt: ", prompt);
+  console.log("Mode: ", mode);
+
   const JSONSENT = {
         method: "POST",
         headers: {
         "Content-Type": "application/json"
         },
         body: JSON.stringify({
-        prompt: prompt
+        prompt: prompt,
+        mode: mode
         //   max_new_tokens: 150,
         //   temperature: 0.7,
         //   top_p: 0.9
