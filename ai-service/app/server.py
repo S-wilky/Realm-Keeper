@@ -44,6 +44,7 @@ MODEL_NAME = "microsoft/Phi-3-mini-4k-instruct"
 
 class GenerateRequest(BaseModel):
     prompt: str
+    mode: str = "quest"
     max_tokens: int = 150
     temperature: float = 0.7
     top_p: float = 0.9
@@ -56,43 +57,56 @@ class EmbedArticleRequest(BaseModel):
 @app.post("/generate")
 async def generate(req: GenerateRequest):
     try:
-
         from phi3Model import generate_quest_from_prompt
         from rag import fetch_context
 
+        print(f"MODE: {req.mode}")
+        print(f"PROMPT: {req.prompt}")
 
-        context = fetch_context(req.prompt)
-        print("RAG CONTEXT:\n", context)
+        # Lore Keeper mode (RAG)
+        if req.mode == "lore":
+            context = fetch_context(req.prompt)
+            print("RAG CONTEXT:\n", context)
 
-        # full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
+            if context == "NO_RELEVANT_CONTEXT":
+                return {
+                    "response": "I couldn't find anything about that in your world data."
+                }
+            
+            full_prompt = f"""You are a world-building assistant.
+            ONLY answer using the information in the Context section below.
+            If the answer is not contained in the context, say you do not know.
 
-        if context == "NO_RELEVANT_CONTEXT":
-            return {
-                "response": "I couldn't find anything about that in your world data."
-            }
+            Context:
+            {context}
+
+            Question:
+            {req.prompt}
+            """
+
+            result = generate_quest_from_prompt(
+                user_input=full_prompt,
+                max_tokens=req.max_tokens,
+                temperature=req.temperature,
+                top_p=req.top_p,
+            )
+
+            return {"response": result}
         
-        full_prompt = f"""You are a world-building assistant.
-        ONLY answer using the information in the Context section below.
-        If the answer is not contained in the context, say you do not know.
+        # Quest Generator mode (no RAG)
+        elif req.mode == "quest":
+            result = generate_quest_from_prompt(
+                user_input=req.prompt,
+                max_tokens=req.max_tokens,
+                temperature=req.temperature,
+                top_p=req.top_p,
+            )
 
-        Context:
-        {context}
-
-        Question:
-        {req.prompt}
-        """
-
-        result = generate_quest_from_prompt(
-            user_input=full_prompt,
-            max_tokens=req.max_tokens,
-            temperature=req.temperature,
-            top_p=req.top_p,
-        )
-
-    # outputs = llm.generate(req.prompt, params)
-    # result = outputs[0].outputs[0].text.strip()
-
-        return {"response": result}
+            return {"response": result}
+        
+        else:
+            return {"error": "Invalid mode selected."}
+    
     
     except Exception as e:
         print("ERROR in /generate:", e)
