@@ -18,47 +18,64 @@ const ChatbotScreen = () => {
     document.title = "Realm Keeper | Chatbot";
 
     const handleSend = async () => {
+        if (loading) return;
+        if (!input.trim()) return;
+
         setLoading(true);
 
-        if (!input.trim()) //return;
-        {
-            setLoading(false);
-            return;
-
-            // console.warn("test");
-            // //Generate a random input prompt
-            // const promptData = await generateInputPrompt();
-            // // console.log("Prompt Data retreived:", promptData);
-            // const prompt = promptData.input_prompt;
-            // // console.log("Prompt: ", prompt);
-
-            // //Generate a random Quest
-            // const questData = await generateQuest(promptData);
-            // // console.log("Quest Data retreived:", questData);
-            // const quest = questData.quest_hook;
-            // // console.log("Quest:", quest);
-
-            // setMessages((prev) => [
-            // ...prev,
-            // { sender: "user", text: prompt },
-            // { sender: "bot", text: quest }, //quest.quest_hook
-            // ]);
-        } else {
-            // Placeholder for backend integration:
-            let response = "";
-            try {
-                response = await generateText(input, mode);
-            } catch (err) {
-                console.error("Generation failed: ", err);
-                response = "Error: Could not generate text.";
-            }
-            
-            setMessages((prev) => [
-                ...prev,
-                { sender: "user", text: input },
-                { sender: "bot", text: response },
-            ]);
+        let response = "";
+        try {
+            response = await generateText(input, mode);
+        } catch (err) {
+            console.error("Generation failed: ", err);
+            response = "Error: Could not generate text.";
         }
+
+        setMessages((prev) => [
+            ...prev,
+            { sender: "user", text: input },
+            { sender: "bot", text: response },
+        ]);
+
+        // if (!input.trim()) //return;
+        // {
+        //     setLoading(false);
+        //     return;
+
+        //     // console.warn("test");
+        //     // //Generate a random input prompt
+        //     // const promptData = await generateInputPrompt();
+        //     // // console.log("Prompt Data retreived:", promptData);
+        //     // const prompt = promptData.input_prompt;
+        //     // // console.log("Prompt: ", prompt);
+
+        //     // //Generate a random Quest
+        //     // const questData = await generateQuest(promptData);
+        //     // // console.log("Quest Data retreived:", questData);
+        //     // const quest = questData.quest_hook;
+        //     // // console.log("Quest:", quest);
+
+        //     // setMessages((prev) => [
+        //     // ...prev,
+        //     // { sender: "user", text: prompt },
+        //     // { sender: "bot", text: quest }, //quest.quest_hook
+        //     // ]);
+        // } else {
+        //     // Placeholder for backend integration:
+        //     let response = "";
+        //     try {
+        //         response = await generateText(input, mode);
+        //     } catch (err) {
+        //         console.error("Generation failed: ", err);
+        //         response = "Error: Could not generate text.";
+        //     }
+            
+        //     setMessages((prev) => [
+        //         ...prev,
+        //         { sender: "user", text: input },
+        //         { sender: "bot", text: response },
+        //     ]);
+        // }
 
         // Add user message instantly
         
@@ -114,9 +131,19 @@ const ChatbotScreen = () => {
                     onChange={(e) => setInput(e.target.value)}
                     className="flex-1 px-3 py-2 rounded bg-[#3A3F47] text-[#D9DDDC]"
                     placeholder={`Ask the ${mode === "quest" ? "Quest Generator" : "Lore Keeper"}...`}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
+                    disabled={loading}
+                    // onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 />
-                <button onClick={handleSend} className="px-4 py-2 bg-pale-orange rounded">
+                <button 
+                    onClick={handleSend}
+                    disabled={loading} 
+                    className="px-4 py-2 bg-pale-orange rounded disabled:opacity-50">
                     Send
                 </button>
             </div>
