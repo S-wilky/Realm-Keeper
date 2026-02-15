@@ -13,7 +13,7 @@ const AIModeSelector = () => {
 
                 {/* Logo */}
                 <div className="flex flex-col items-center gap-3 mb-6">
-                    <RK_Icon icon="sparkles" size="lg" color="pale-orange" />
+                    <RK_Icon icon="sparkles" size="md" color="pale-orange" />
                     <h1 className="text-3xl font-semibold">Realm Keeper AI</h1>
                     <p className="text-gray-400 text-sm">
                         Choose what kind of help you would like

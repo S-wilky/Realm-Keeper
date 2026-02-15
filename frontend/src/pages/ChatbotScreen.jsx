@@ -125,12 +125,12 @@ const ChatbotScreen = () => {
 
             {/* Input */}
             <div className="flex gap-2 mt-4">
-                <input
-                    type="text"
+                <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded bg-[#3A3F47] text-[#D9DDDC]"
+                    className="flex-1 px-3 py-2 rounded bg-[#3A3F47] text-[#D9DDDC] resize-none"
                     placeholder={`Ask the ${mode === "quest" ? "Quest Generator" : "Lore Keeper"}...`}
+                    rows={2}
                     onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
