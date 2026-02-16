@@ -27,7 +27,7 @@ const AIModeSelector = () => {
                         size="md"
                         onClick={() => navigate("/chatbot/chat", { state: { mode: "quest" } })}
                     >
-                        Quest Generator
+                        Fantasy Quest Generator
                     </RK_Button>
 
                     <RK_Button

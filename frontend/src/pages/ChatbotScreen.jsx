@@ -97,7 +97,7 @@ const ChatbotScreen = () => {
                     onClick={() => navigate("/")}
                 />
                 <h1 className="text-3xl font-semibold">
-                    {mode === "quest" ? "Quest Generator" : "Lore Keeper"}
+                    {mode === "quest" ? "Fantasy Quest Generator" : "Lore Keeper"}
                 </h1>
                 {/* <h1 className="text-3xl font-semibold">AI Chatbot</h1> */}
                 <button
@@ -129,7 +129,7 @@ const ChatbotScreen = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     className="flex-1 px-3 py-2 rounded bg-[#3A3F47] text-[#D9DDDC] resize-none"
-                    placeholder={`Ask the ${mode === "quest" ? "Quest Generator" : "Lore Keeper"}...`}
+                    placeholder={`Ask the ${mode === "quest" ? "Fantasy Quest Generator" : "Lore Keeper"}...`}
                     rows={2}
                     onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
