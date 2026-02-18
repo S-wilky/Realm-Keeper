@@ -18,47 +18,6 @@ const ChatbotScreen = () => {
     document.title = "Realm Keeper | Chatbot";
 
     const handleSend = async () => {
-<<<<<<< HEAD
-
-        if (!input.trim()) //return;
-        {
-            return;
-
-            // console.warn("test");
-            // //Generate a random input prompt
-            // const promptData = await generateInputPrompt();
-            // // console.log("Prompt Data retreived:", promptData);
-            // const prompt = promptData.input_prompt;
-            // // console.log("Prompt: ", prompt);
-
-            // //Generate a random Quest
-            // const questData = await generateQuest(promptData);
-            // // console.log("Quest Data retreived:", questData);
-            // const quest = questData.quest_hook;
-            // // console.log("Quest:", quest);
-
-            // setMessages((prev) => [
-            // ...prev,
-            // { sender: "user", text: prompt },
-            // { sender: "bot", text: quest }, //quest.quest_hook
-            // ]);
-        } else {
-            setLoading(true);
-            // Placeholder for backend integration:
-            let response = "";
-            try {
-                response = await generateText(input);
-            } catch (err) {
-                console.error("Generation failed: ", err);
-                response = "Error: Could not generate text.";
-            }
-            
-            setMessages((prev) => [
-                ...prev,
-                { sender: "user", text: input },
-                { sender: "bot", text: response },
-            ]);
-=======
         if (loading) return;
         if (!input.trim()) return;
 
@@ -70,7 +29,6 @@ const ChatbotScreen = () => {
         } catch (err) {
             console.error("Generation failed: ", err);
             response = "Error: Could not generate text.";
->>>>>>> 22eb49fa3e9f874d5d804b67a39292d26dd59bc8
         }
 
         setMessages((prev) => [
