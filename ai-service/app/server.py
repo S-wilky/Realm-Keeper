@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
-import openai 
+from openai import OpenAI
 
 # from app.model.phi3Model import generate_quest_from_prompt
 # from app.rag import fetch_context
@@ -14,7 +14,8 @@ supabase = create_client(
     os.environ["SUPABASE_SECRET_KEY"]
 )
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 app = FastAPI()
 
@@ -43,6 +44,7 @@ MODEL_NAME = "microsoft/Phi-3-mini-4k-instruct"
 
 class GenerateRequest(BaseModel):
     prompt: str
+    mode: str = "quest"
     max_tokens: int = 150
     temperature: float = 0.7
     top_p: float = 0.9
@@ -54,25 +56,63 @@ class EmbedArticleRequest(BaseModel):
 
 @app.post("/generate")
 async def generate(req: GenerateRequest):
-    from app.model.phi3Model import generate_quest_from_prompt
-    from app.rag import fetch_context
+    try:
+        from phi3Model import generate_quest_from_prompt
+        from rag import fetch_context
+
+        print(f"MODE: {req.mode}")
+        print(f"PROMPT: {req.prompt}")
+
+        # Lore Keeper mode (RAG)
+        if req.mode == "lore":
+            context = fetch_context(req.prompt)
+            print("RAG CONTEXT:\n", context)
+
+            if context == "NO_RELEVANT_CONTEXT":
+                return {
+                    "response": "I couldn't find anything about that in your world data."
+                }
+            
+            full_prompt = f"""You are a world-building assistant.
+            ONLY answer using the information in the Context section below.
+            If the answer is not contained in the context, say you do not know.
+
+            Context:
+            {context}
+
+            Question:
+            {req.prompt}
+            """
+
+            result = generate_quest_from_prompt(
+                user_input=full_prompt,
+                max_tokens=req.max_tokens,
+                temperature=req.temperature,
+                top_p=req.top_p,
+            )
+
+            return {"response": result}
+        
+        # Quest Generator mode (no RAG)
+        elif req.mode == "quest":
+            result = generate_quest_from_prompt(
+                user_input=req.prompt,
+                max_tokens=req.max_tokens,
+                temperature=req.temperature,
+                top_p=req.top_p,
+            )
+
+            return {"response": result}
+        
+        else:
+            return {"error": "Invalid mode selected."}
+    
+    
+    except Exception as e:
+        print("ERROR in /generate:", e)
+        return {"error": str(e)}
 
 
-    context = fetch_context(req.prompt)
-
-    full_prompt = f"Context:\n{context}\n\nQuestion:\n{req.prompt}"
-
-    result = generate_quest_from_prompt(
-        user_input=full_prompt,
-        max_tokens=req.max_tokens,
-        temperature=req.temperature,
-        top_p=req.top_p,
-    )
-
-    # outputs = llm.generate(req.prompt, params)
-    # result = outputs[0].outputs[0].text.strip()
-
-    return {"response": result}
 
 from fastapi import Response
 
@@ -98,31 +138,32 @@ async def embed_article(req: EmbedArticleRequest):
         
         text_to_embed = f"{req.title}\n\n{req.body}"
 
-        response = openai.Embedding.create(
-            input=req.body,
+        response = client.embeddings.create(
+            input=text_to_embed,
             model="text-embedding-3-small"
         )
-        embedding_vector = [float(x) for x in response["data"][0]["embedding"]]
+        embedding_vector = response.data[0].embedding
+        # embedding_vector = [float(x) for x in response["data"][0]["embedding"]]
 
-        supabase_response = supabase.from_("articles").update({
-            "embedding_vector": embedding_vector
-        }).eq("article_id", req.article_id).execute()
-
-        if supabase_response.error:
-            print("Supabase error:", supabase_response.error)
-            return {"success": False, "error": str(supabase_response.error)}
+        response = supabase.schema("realms").table("articles") \
+            .update({"embedding_vector": embedding_vector}) \
+            .eq("article_id", req.article_id) \
+            .execute()
         
-        print("Updated embedding for article:", req.article_id)
-        return {"success": True, "data": supabase_response.data}
+        if not response.data:
+            print("Supabase error:", response)
+            return {"success": False, "error": str(response)}
 
-        # data, error = supabase.table("articles").update({
+        # data, error = supabase.schema("realms").from_("articles").update({
         #     "embedding_vector": embedding_vector
         # }).eq("article_id", req.article_id).execute()
 
         # if error:
+        #     print("Supabase error:", error)
         #     return {"success": False, "error": str(error)}
         
-        # return {"success": True, "data": data}
+        print("Updated embedding for article:", req.article_id)
+        return {"success": True, "data": response.data}
     
     except Exception as e:
         print("Embedding error:", e)
@@ -130,6 +171,17 @@ async def embed_article(req: EmbedArticleRequest):
             "success": False,
             "error": str(e)
         }
+
+        # supabase_response = supabase.from_("articles").update({
+        #     "embedding_vector": embedding_vector
+        # }).eq("article_id", req.article_id).execute()
+
+        # if supabase_response.error:
+        #     print("Supabase error:", supabase_response.error)
+        #     return {"success": False, "error": str(supabase_response.error)}
+        
+        # print("Updated embedding for article:", req.article_id)
+        # return {"success": True, "data": supabase_response.data}
 
 # run this to start server:
 # uvicorn app.server:app --host 0.0.0.0 --port 8000

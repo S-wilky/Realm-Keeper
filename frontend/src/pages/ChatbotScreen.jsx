@@ -1,11 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 // import generateQuest from "../../../ai-service/app/quests/generateQuest";
 import generateText from "../utils/generateAIText";
 // import generateInputPrompt from "../../../ai-service/app/quests/generateInputPrompt";
 
 const ChatbotScreen = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Get selected AI mode
+    const mode = location.state?.mode || "lore";
+
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -13,6 +18,7 @@ const ChatbotScreen = () => {
     document.title = "Realm Keeper | Chatbot";
 
     const handleSend = async () => {
+<<<<<<< HEAD
 
         if (!input.trim()) //return;
         {
@@ -52,7 +58,66 @@ const ChatbotScreen = () => {
                 { sender: "user", text: input },
                 { sender: "bot", text: response },
             ]);
+=======
+        if (loading) return;
+        if (!input.trim()) return;
+
+        setLoading(true);
+
+        let response = "";
+        try {
+            response = await generateText(input, mode);
+        } catch (err) {
+            console.error("Generation failed: ", err);
+            response = "Error: Could not generate text.";
+>>>>>>> 22eb49fa3e9f874d5d804b67a39292d26dd59bc8
         }
+
+        setMessages((prev) => [
+            ...prev,
+            { sender: "user", text: input },
+            { sender: "bot", text: response },
+        ]);
+
+        // if (!input.trim()) //return;
+        // {
+        //     setLoading(false);
+        //     return;
+
+        //     // console.warn("test");
+        //     // //Generate a random input prompt
+        //     // const promptData = await generateInputPrompt();
+        //     // // console.log("Prompt Data retreived:", promptData);
+        //     // const prompt = promptData.input_prompt;
+        //     // // console.log("Prompt: ", prompt);
+
+        //     // //Generate a random Quest
+        //     // const questData = await generateQuest(promptData);
+        //     // // console.log("Quest Data retreived:", questData);
+        //     // const quest = questData.quest_hook;
+        //     // // console.log("Quest:", quest);
+
+        //     // setMessages((prev) => [
+        //     // ...prev,
+        //     // { sender: "user", text: prompt },
+        //     // { sender: "bot", text: quest }, //quest.quest_hook
+        //     // ]);
+        // } else {
+        //     // Placeholder for backend integration:
+        //     let response = "";
+        //     try {
+        //         response = await generateText(input, mode);
+        //     } catch (err) {
+        //         console.error("Generation failed: ", err);
+        //         response = "Error: Could not generate text.";
+        //     }
+            
+        //     setMessages((prev) => [
+        //         ...prev,
+        //         { sender: "user", text: input },
+        //         { sender: "bot", text: response },
+        //     ]);
+        // }
 
         // Add user message instantly
         
@@ -73,7 +138,10 @@ const ChatbotScreen = () => {
                     className="w-15 h-15"
                     onClick={() => navigate("/")}
                 />
-                <h1 className="text-3xl font-semibold">AI Chatbot</h1>
+                <h1 className="text-3xl font-semibold">
+                    {mode === "quest" ? "Fantasy Quest Generator" : "Lore Keeper"}
+                </h1>
+                {/* <h1 className="text-3xl font-semibold">AI Chatbot</h1> */}
                 <button
                     onClick={() => navigate("/")}
                     className="bg-pale-orange px-4 py-2 rounded hover:opacity-80"
@@ -99,14 +167,25 @@ const ChatbotScreen = () => {
 
             {/* Input */}
             <div className="flex gap-2 mt-4">
-                <input
-                    type="text"
+                <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    className="flex-1 px-3 py-2 rounded bg-[#3A3F47] text-[#D9DDDC]"
-                    placeholder="Type your message..."
+                    className="flex-1 px-3 py-2 rounded bg-[#3A3F47] text-[#D9DDDC] resize-none"
+                    placeholder={`Ask the ${mode === "quest" ? "Fantasy Quest Generator" : "Lore Keeper"}...`}
+                    rows={2}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
+                    disabled={loading}
+                    // onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 />
-                <button onClick={handleSend} className="px-4 py-2 bg-pale-orange rounded">
+                <button 
+                    onClick={handleSend}
+                    disabled={loading} 
+                    className="px-4 py-2 bg-pale-orange rounded disabled:opacity-50">
                     Send
                 </button>
             </div>

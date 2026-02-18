@@ -62,18 +62,60 @@ const ArticleCreationForm = ({ onClose, onCreate, worlds }) => {
     const isFormValid =
         title.trim() !== "" && world_id.trim() !== "" && type.trim() !== "" && (type !== "Other (custom)" || customType.trim() !== "");
     
-    const handleSubmit = (e) => {
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValid) return;
 
-        onCreate({ 
-            title, 
-            world_id,
-            type: type === "Other (custom)" ? customType : type,
-            body 
-        });
-        onClose();
+        try {
+            // Create the article in Supabase
+            const createdArticle = await onCreate({
+                title,
+                world_id,
+                type: type === "Other (custom)" ? customType : type,
+                body
+            });
+
+            // Ensure we have the article_id
+            const articleId = createdArticle?.article_id;
+            if (!articleId) {
+                console.error("No article_id returned from onCreate");
+                onClose();
+                return;
+            }
+
+            // Call AI service to embed the article
+            const res = await fetch(`${import.meta.env.VITE_AI_SERVICE_URL}/embed-article`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ article_id: articleId, title: title, body: body }),
+            });
+
+            const embedData = await res.json();
+            if (!embedData.success) {
+                console.error("Embedding failed:", embedData.error);
+            } else {
+                console.log("Embedding successful:", embedData.data);
+            }
+
+            onClose(); // Close the form after creation and embedding
+        } catch (err) {
+            console.error("Article creation or embedding failed:", err);
+            onClose();
+        }
     };
+    // const handleSubmit = (e) => {
+    //     e.preventDefault();
+    //     if (!isFormValid) return;
+
+    //     onCreate({ 
+    //         title, 
+    //         world_id,
+    //         type: type === "Other (custom)" ? customType : type,
+    //         body 
+    //     });
+    //     onClose();
+    // };
 
     return (
         <form onSubmit={handleSubmit}>

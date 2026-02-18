@@ -302,9 +302,13 @@ const Dashboard = ({ user = "User" }) => {
                 ...prev,
                 Articles: [...prev.Articles, newArticle],
             }));
+
+            handleClosePopup();
+        } else {
+            console.error("Failed to create article:", error);
         }
 
-        handleClosePopup();
+        return newArticle;
     };
 
     const handleCreateSession = async (data) => {
