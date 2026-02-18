@@ -11,27 +11,29 @@ import RK_Button from "../components/RK_Button.jsx";
 // import isEmpty from "../utils/isEmpty.js";
 import Tooltip from "../components/Tooltip.jsx";
 import MapViewport from "../components/Sessions (VTT)/MapViewport.jsx";
-import AddMapImageModal from "../components/Sessions (VTT)/AddMapImageModal.jsx";
-import AddTokenModal from "../components/Sessions (VTT)/AddTokenModal.jsx";
+// import AddMapImageModal from "../components/Sessions (VTT)/AddMapImageModal.jsx";
+// import AddTokenModal from "../components/Sessions (VTT)/AddTokenModal.jsx";
+import AddAssetModal from "../components/Sessions (VTT)/AddAssetModal.jsx";
 import fetchUsername from "../utils/fetchUsername.js";
 
 const SessionScreen = () => {
     const { state } = useLocation();
     const navigate = useNavigate();
 
-    const { user_id, session_id, /*stage_id , title: initialTitle, description: initialDescription, onDelete*/ } = state;
+    const { user_id, session_id, title: initialTitle, description: initialDescription, /*onDelete*/ } = state;
 
     
     // IMPORTANT: refs do NOT trigger re-renders
     const gridXRef = useRef(20);
     const gridYRef = useRef(20);
+    // const gridSizeRef = useRef(50);
     const panelRef = useRef(null);
     const chatBottomRef = useRef(null);
     const hasInitializedRef = useRef(false);
 
-    // const [title, setTitle] = useState(initialTitle);
-    // const [description, setDescription] = useState(initialDescription);
-    // const [isEditing, setIsEditing] = useState(false);
+    const [title, setTitle] = useState(initialTitle);
+    const [description, setDescription] = useState(initialDescription);
+    const [isEditingSettings, setIsEditingSettings] = useState(false);
     // const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [height, setHeight] = useState(240);
     const [isDragging, setIsDragging] = useState(false);
@@ -50,10 +52,13 @@ const SessionScreen = () => {
     const [stageTitle, setStageTitle] = useState("");
     // const [isStageReady, setIsStageReady] = useState(null);
 
-    const [showMapModal, setShowMapModal] = useState(false);
-    const [maps, setMaps] = useState([]);
-    const [showTokenModal, setShowTokenModal] = useState(false);
-    const [tokens, setTokens] = useState([]);
+    // const [showMapModal, setShowMapModal] = useState(false);
+    const [showAssetModal, setShowAssetModal] = useState(false);
+    // const [maps, setMaps] = useState([]);
+    // const [showTokenModal, setShowTokenModal] = useState(false);
+    // const [tokens, setTokens] = useState([]);
+    // const [contextMenu, setContextMenu] = useState(null);
+    const [assets, setAssets] = useState([]);
 
     const [interactionState, setInteractionState] = useState({
         activeLayer: "map", // "map" | "token" | "gm" | ...
@@ -162,7 +167,7 @@ const SessionScreen = () => {
         let currentPosition = 1;
         for (const i in sessionStages) {
             const stage = sessionStages[i];
-            // console.log("Stage to reaorder: ", stage);
+            // console.log("Stage to reorder: ", stage);
             if (stage.position !== currentPosition) {
                 const { error: sessionStageError } = await supabase
                     .from('session_stages')
@@ -194,7 +199,7 @@ const SessionScreen = () => {
         return sessionStages;
     }, []);
     
-    const getStages = useCallback( async () => {
+    const getStages = useCallback( async (getOnly = false) => {
         console.warn("Getting Stages.");
         const { data: sessionStages, error: sessionStageError } = await supabase
             .from('session_stages')
@@ -225,7 +230,9 @@ const SessionScreen = () => {
             console.log("Stages Retreived: ", stages);
         }
 
-        setStages(stages);
+        if (!getOnly) {
+            setStages(stages);
+        }
 
         return sessionStages;
     }, [session_id]);
@@ -275,8 +282,9 @@ const SessionScreen = () => {
       setGridSize(stage.grid_size);
 
       // Shared state
-      setMaps(stage.state?.maps ?? []);
-      setTokens(stage.state?.tokens ?? []);
+    //   setMaps(stage.state?.maps ?? []);
+    //   setTokens(stage.state?.tokens ?? []);
+      setAssets(stage.state?.assets ?? []);
 
       console.log("Stage Loaded: ", stage);
     }, []);
@@ -393,36 +401,110 @@ const SessionScreen = () => {
 
     if (!state) return <p>No session data found.</p>;
 
-    // const handleSave = async () => {
-    //     const { error } = await supabase
-    //         .from("sessions")
-    //         .update({ title, description })
-    //         .eq("session_id", session_id);
+    const handleSave = async () => {
+        const { error } = await supabase
+            .from("sessions")
+            .update({ title, description })
+            .eq("session_id", session_id);
 
-    //     if (error) {
-    //         alert("Error saving session: " + error.message);
-    //     } else {
-    //         alert("Session saved!");
-    //         setIsEditing(false);
-    //     }
-    // };
+        if (error) {
+            alert("Error saving session: " + error.message);
+        } else {
+            alert("Session saved!");
+            setIsEditingSettings(false);
+        }
+    };
 
-    // const handleDelete = async () => {
-    //     if (!window.confirm("Are you sure you want to delete this session?")) return;
+    const handleDelete = async () => {
+        if (!window.confirm("Are you sure you want to delete this session?")) return;
 
-    //     const { error } = await supabase
-    //         .from("sessions")
-    //         .delete()
-    //         .eq("session_id", session_id);
+        const { error } = await supabase
+            .from("sessions")
+            .delete()
+            .eq("session_id", session_id);
 
-    //     if (error) {
-    //         console.log("Delete error:", error);
-    //         alert("Error deleting world: " + error.message);
-    //     } else {
-    //         alert("Session deleted!");
-    //         navigate("/");
-    //     }
-    // };
+        if (error) {
+            console.log("Delete error:", error);
+            alert("Error deleting world: " + error.message);
+        } else {
+            alert("Session deleted!");
+            navigate("/");
+        }
+    };
+
+    async function saveStageSettings(stage) {
+        if (stageTitle !== "") {
+            const {error} = await supabase
+                .from('stages')
+                .update({title: stageTitle})
+                .eq('stage_id', stage.stage_id);
+            
+            if (error) {
+                console.error(error)
+            } else {
+                console.log("Title updated for stage ", stage.stage_id);
+                console.log("Title: ", stageTitle);
+            }
+
+            setStageTitle("");
+        } 
+        // else {
+        //     setEditingStageId(editingStageId == stage.stage_id ? null : stage.stage_id)
+        // }
+        let sessionStages = null;
+        let activeSessionStage = null;
+
+        if ((gridYRef.current.value !== null && gridYRef.current.value != 0) 
+            || 
+            (gridXRef.current.value !== null && gridXRef.current.value != 0)) 
+        {
+            sessionStages = await getStages(true);
+            activeSessionStage = sessionStages.find(s => s.is_active);
+        }
+
+        // console.log("New Grid Size: ", gridXRef.current.value, " x ", gridYRef.current.value);
+        // console.log("New World Size: ", gridXRef.current.value * gridSize, " x ", gridYRef.current.value * gridSize);
+        if (gridXRef.current.value !== null && gridXRef.current.value != 0) {
+            if (activeSessionStage.stage_id == stage.stage_id) {
+                setWorldX(gridXRef.current.value * gridSize);
+            }
+
+            const { error } = await supabase
+                .from('stages')
+                .update({world_width: gridXRef.current.value * gridSize})
+                .eq('stage_id', stage.stage_id)
+
+            if (error) {
+                console.error(error);
+            } else {
+                console.log("Updated X to: ", gridXRef.current.value * gridSize)
+            }
+        } 
+        if (gridYRef.current.value !== null && gridYRef.current.value != 0) {
+            if (activeSessionStage.stage_id == stage.stage_id) { 
+                setWorldY(gridYRef.current.value * gridSize);
+            }
+
+            const { error } = await supabase
+                .from('stages')
+                .update({world_height: gridYRef.current.value * gridSize})
+                .eq('stage_id', stage.stage_id)
+
+            if (error) {
+                console.error(error);
+            } else {
+                console.log("Updated Y to: ", gridYRef.current.value * gridSize)
+            }
+        }
+        setEditingStageId(null);
+
+        if (stageTitle !== "" || 
+            (gridYRef.current.value !== null && gridYRef.current.value != 0) || 
+            (gridXRef.current.value !== null && gridXRef.current.value != 0)) 
+        {
+            getStages();
+        }
+    }
 
     async function handleDeleteStage(stage) {
 
@@ -521,7 +603,7 @@ const SessionScreen = () => {
 
     const bottomMenu = [
         {icon: "chat", onClick: () => setActiveTabBM("chat"), tooltip: "Chat"},
-        {icon: "binoculars", onClick: () => setActiveTabBM("maps"), tooltip: "Maps"},
+        {icon: "binoculars", onClick: () => setActiveTabBM("assets"), tooltip: "Assets"},
         {icon: "connect", onClick: () => setActiveTabBM("stages"), tooltip: "Stages"},
         // {icon: "book", onClick: () => setActiveTabBM("articles"), tooltip: "Articles"},
         {icon: "settings", onClick: () => setActiveTabBM("settings"), tooltip: "Session Settings"},
@@ -578,15 +660,27 @@ const SessionScreen = () => {
                         <div className="flex-1 relative overflow-hidden w-full h-full">
                             <MapViewport camera={camera} setCamera={setCamera}
                                 worldX={worldX} worldY={worldY} gridSize={gridSize} setWorldX={setWorldX} setWorldY={setWorldY} setGridSize={setGridSize} 
-                                maps={maps} setMaps={setMaps} tokens={tokens} setTokens={setTokens}
+                                assets={assets} setAssets={setAssets}
                                 interactionState={interactionState} setInteractionState={setInteractionState}
                                 stageId={stageId} setStageId={setStageId} sessionId={session_id}
-                                loadStage={loadStage}
-                                // activeLayer={activeLayer} selectedId={selectedId} setSelectedId={setSelectedId} 
+                                loadStage={loadStage} 
                             />
 
+                            {/* Asset Modal */}
+                            {showAssetModal && (
+                                <AddAssetModal
+                                userId={user_id}
+                                onClose={() => setShowAssetModal(false)}
+                                interactionState={interactionState}
+                                onAddImage={(asset) => {
+                                    setAssets((prev) => [...prev, asset]);
+                                    setShowAssetModal(false);
+                                }}
+                                />
+                            )}
+
                             {/* Map Modal */}
-                            {showMapModal && (
+                            {/* {showMapModal && (
                                 <AddMapImageModal
                                 userId={user_id}
                                 onClose={() => setShowMapModal(false)}
@@ -595,10 +689,10 @@ const SessionScreen = () => {
                                     setShowMapModal(false);
                                 }}
                                 />
-                            )}
+                            )} */}
 
                             {/* Token Modal */}
-                            {showTokenModal && (
+                            {/* {showTokenModal && (
                                 <AddTokenModal
                                 userId={user_id}
                                 onClose={() => setShowTokenModal(false)}
@@ -607,7 +701,7 @@ const SessionScreen = () => {
                                     setShowTokenModal(false);
                                 }}
                                 />
-                            )}
+                            )} */}
 
                             {/* <img src="/src/assets/Snowy Mountain.jpg"
                                     alt="Realm Keeper Logo"
@@ -652,7 +746,7 @@ const SessionScreen = () => {
                                                             msg.sender == username ? "bg-abbey" : "bg-steel"
                                                         }`}
                                                     >
-                                                        <span className="font-bold">{msg.sender}: </span>{msg.text}
+                                                        <span className="font-bold">{msg.sender != "" ? msg.sender : "No Username"}: </span>{msg.text}
                                                     </div>  
                                                 ))}
                                                 {/* {loading && <div className="text-center italic text-gray-400">AI is thinking...</div>*/}
@@ -679,15 +773,27 @@ const SessionScreen = () => {
                                     </div>}
 
                                     {/* Maps - TODO: Hook up to supabase storage and add a modal for user storage (uploading/selecting maps/image/tokens).*/}
-                                    {activeTabBM === "maps" && <div className="m-3 flex gap-4 h-24">
-                                        <RK_Button className="m-3" onClick={() => setShowMapModal(true)}>Select Map</RK_Button>
-                                        <RK_Button className="m-3" onClick={() => setShowTokenModal(true)}>Select Token</RK_Button>
+                                    {activeTabBM === "assets" && <div className="m-3 flex gap-4 h-24 w-full">
+                                        {/* <AssetManager
+                                            onAddAsset={(asset) => {
+                                                setAssets((prev) => [...prev, asset]);
+                                            }}
+                                            userId={user_id}
+                                            selectedLayer={interactionState.activeLayer}
+                                        ></AssetManager> */}
+
+                                        {/* <RK_Button className="m-3" onClick={() => setShowMapModal(true)}>Select Map</RK_Button> */}
+                                        <RK_Button className="m-3" onClick={() => setShowAssetModal(true)}>Manage Assets</RK_Button>
                                     </div>}
 
                                     {/* Stages */}
-                                    {activeTabBM === "stages" && <div className="m-3 flex flex-row gap-4 h-28">
-                                        {/* <div className=""> */}
-                                            <RK_Button size="md"
+                                    {activeTabBM === "stages" && <div className="m-3 p-1 flex flex-row gap-4 h-full w-full flex-wrap overflow-auto" 
+                                    onClick={() => {
+                                        setEditingStageId(null);
+                                    }}>
+                                        {/* New Stage Button */}
+                                        {/* <div className="h-28"> */}
+                                            <RK_Button size="md" className="h-28 w-34"
                                             onClick={async () => {
                                                 const newStage = await createStage();
                                                 attachStageToSession(newStage);
@@ -702,55 +808,85 @@ const SessionScreen = () => {
                                             </RK_Button>
                                         {/* </div> */}
                                         {stages.map(( stage ) => ( 
-                                            // <div key={stage.stage_id} className="bg-erie" >{stage.title}</div>
-                                            <div key={stage.stage_id} className="outline h-28 min-w-34 p-2 rounded-2xl relative flex flex-col gap-1">
+                                            <div key={stage.stage_id} className="outline h-28 min-w-34 p-2 rounded-2xl relative flex flex-col gap-1"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                }}
+                                            >
                                                 <div className="absolute top-0 right-1" >{stage.position}</div>
                                                 <div>
-                                                {stage.stage_id == editingStageId ? (
-                                                    <input 
-                                                        type="text" 
-                                                        autoFocus
-                                                        placeholder={stage.title} 
-                                                        className="w-28"
-                                                        value={stageTitle}
-                                                        onChange={(e) => setStageTitle(e.target.value)}
-                                                        onKeyDown={async e => {if (e.key == "Enter") {
-                                                            if (stageTitle == "") {
-                                                                setEditingStageId(null);
-                                                                return;
-                                                            }
+                                                {/* Stage Title */}
+                                                    {stage.stage_id == editingStageId ? (
+                                                        <input 
+                                                            type="text" 
+                                                            autoFocus
+                                                            placeholder={stage.title} 
+                                                            className="w-28"
+                                                            value={stageTitle}
+                                                            onChange={(e) => setStageTitle(e.target.value)}
+                                                            onKeyDown={async e => {if (e.key == "Enter") {
+                                                                if (stageTitle == "") {
+                                                                    setEditingStageId(null);
+                                                                    return;
+                                                                }
 
-                                                            const {error} = await supabase
-                                                                .from('stages')
-                                                                .update({title: stageTitle})
-                                                                .eq('stage_id', stage.stage_id);
-                                                            
-                                                            if (error) {
-                                                                console.error(error)
-                                                            } else {
-                                                                console.log("Title updated for stage ", stage.stage_id);
-                                                                console.log("Title: ", stageTitle);
-                                                            }
-                                                            setEditingStageId(null);
-                                                            setStageTitle("");
-                                                            getStages();
-                                                        } else if (e.key == "Esc") {
-                                                            setEditingStageId(null);
-                                                        }}}
-                                                    ></input>
-                                                ) : (
-                                                <strong onClick={() => {setEditingStageId(stage.stage_id)}}>{stage.title}</strong>
-                                                )}
-                                                <div>
-                                                    {stage.world_width} x {stage.world_height}
-                                                </div>
+                                                                const {error} = await supabase
+                                                                    .from('stages')
+                                                                    .update({title: stageTitle})
+                                                                    .eq('stage_id', stage.stage_id);
+                                                                
+                                                                if (error) {
+                                                                    console.error(error)
+                                                                } else {
+                                                                    console.log("Title updated for stage ", stage.stage_id);
+                                                                    console.log("Title: ", stageTitle);
+                                                                }
+                                                                setEditingStageId(null);
+                                                                setStageTitle("");
+                                                                getStages();
+                                                            } else if (e.key == "Esc") {
+                                                                setEditingStageId(null);
+                                                            }}}
+                                                        ></input>
+                                                    ) : (
+                                                        <strong onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setEditingStageId(stage.stage_id);
+                                                        }}>{stage.title}</strong>
+                                                    )}
+                                                    {/* Grid Size */}
+                                                    {stage.stage_id == editingStageId ? (
+                                                        <div>
+                                                            <input placeholder={stage.world_width / gridSize} className="w-10 mr-1" 
+                                                            ref={gridXRef} type="number" max={100} min={0}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                            }} /> 
+                                                               x 
+                                                            <input placeholder={stage.world_height / gridSize} className="w-10 ml-6"
+                                                            ref={gridYRef} type="number" max={100} min={0}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                            }} />
+                                                        </div>
+                                                    ) : (
+                                                        <div onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setEditingStageId(stage.stage_id);
+                                                        }}>
+                                                            {stage.world_width / gridSize} x {stage.world_height / gridSize}
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="flex items-center">
                                                     {editingStageId == stage.stage_id ? (
                                                         <RK_Button
                                                             type="danger"
-                                                            onClick={() => handleDeleteStage(stage)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteStage(stage);
+                                                            }}
                                                         >
                                                             Delete
                                                         </RK_Button>
@@ -770,25 +906,32 @@ const SessionScreen = () => {
                                                         )
                                                     )}
                                                     <div className="w-8 h-8">
-                                                        <RK_Icon icon="pencil" onClick={async () => {
-                                                            if (stageTitle !== "") {
-                                                                const {error} = await supabase
-                                                                    .from('stages')
-                                                                    .update({title: stageTitle})
-                                                                    .eq('stage_id', stage.stage_id);
-                                                                
-                                                                if (error) {
-                                                                    console.error(error)
-                                                                } else {
-                                                                    console.log("Title updated for stage ", stage.stage_id);
-                                                                    console.log("Title: ", stageTitle);
-                                                                }
-                                                                setEditingStageId(null);
-                                                                setStageTitle("");
-                                                                getStages();
+                                                        <RK_Icon icon={editingStageId == stage.stage_id ? `bookmark` : `pencil`}
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            if (editingStageId == stage.stage_id) {
+                                                                await saveStageSettings(stage);
                                                             } else {
-                                                                setEditingStageId(editingStageId == stage.stage_id ? null : stage.stage_id)
+                                                                setEditingStageId(stage.stage_id);
                                                             }
+                                                            // if (stageTitle !== "") {
+                                                            //     const {error} = await supabase
+                                                            //         .from('stages')
+                                                            //         .update({title: stageTitle})
+                                                            //         .eq('stage_id', stage.stage_id);
+                                                                
+                                                            //     if (error) {
+                                                            //         console.error(error)
+                                                            //     } else {
+                                                            //         console.log("Title updated for stage ", stage.stage_id);
+                                                            //         console.log("Title: ", stageTitle);
+                                                            //     }
+                                                            //     setEditingStageId(null);
+                                                            //     setStageTitle("");
+                                                            //     getStages();
+                                                            // } else {
+                                                            //     setEditingStageId(editingStageId == stage.stage_id ? null : stage.stage_id)
+                                                            // }
                                                         }} />
                                                     </div>
                                                 </div>
@@ -802,47 +945,54 @@ const SessionScreen = () => {
                                     </div>} */}
 
                                     {/* Settings */}
-                                    {activeTabBM === "settings" && <div className="p-3">
-                                        <h4 className="p-2">Grid Size</h4>
-                                        <div className="p-2 flex gap-2 items-center">
-                                            <p>X</p>
-                                            <input ref={gridXRef} placeholder={worldX / gridSize} type="number" max={100} min={0} 
-                                            className="border border-steel"></input> 
-                                            <p>Y</p>
-                                            <input ref={gridYRef} placeholder={worldY / gridSize} type="number" max={100} min={0} 
-                                            className="border border-steel"></input> 
-                                            <RK_Button onClick={async () => {
-                                                // console.log("New Grid Size: ", gridXRef.current.value, " x ", gridYRef.current.value);
-                                                // console.log("New World Size: ", gridXRef.current.value * gridSize, " x ", gridYRef.current.value * gridSize);
-                                                if (gridXRef.current.value !== null && gridXRef.current.value != 0) {
-                                                    setWorldX(gridXRef.current.value * gridSize);
-                                                    const { error } = await supabase
-                                                        .from('stages')
-                                                        .update({world_width: gridXRef.current.value * gridSize})
-                                                        .eq('stage_id', stageId)
-
-                                                    if (error) {
-                                                        console.error(error);
-                                                    } else {
-                                                        console.log("Updated X to: ", gridXRef.current.value * gridSize)
-                                                    }
-                                                } 
-                                                if (gridYRef.current.value !== null && gridYRef.current.value != 0) {
-                                                    setWorldY(gridYRef.current.value * gridSize);
-                                                    const { error } = await supabase
-                                                        .from('stages')
-                                                        .update({world_height: gridYRef.current.value * gridSize})
-                                                        .eq('stage_id', stageId)
-
-                                                    if (error) {
-                                                        console.error(error);
-                                                    } else {
-                                                        console.log("Updated Y to: ", gridYRef.current.value * gridSize)
-                                                    }
-                                                }
-                                                getStages();
-                                            }}>Set World Size</RK_Button>
+                                    {activeTabBM === "settings" && <div className="p-3 flex flex-col gap-4">
+                                        {isEditingSettings ? (
+                                            <div className="flex flex-col gap-2">
+                                                <h4><strong>Title: </strong></h4>
+                                                <input type="text" value={title} className="outline-1 rounded"
+                                                onChange={(e) => setTitle(e.target.value)}></input>
+                                                <h4><strong>Description: </strong></h4>
+                                                <input type="text" value={description} className="outline-1 rounded"
+                                                onChange={(e) => setDescription(e.target.value)}></input>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-2">
+                                                <h4><strong>Title: </strong>{title}</h4>
+                                                <h4><strong>Description: </strong>{description}</h4>
+                                            </div>
+                                        )}
+                                        <div className="flex gap-2">
+                                            {isEditingSettings ? (
+                                                <RK_Button
+                                                    // className="bg-dusky-blue text-white px-4 py-2 rounded"
+                                                    type="accent"
+                                                    onClick={handleSave}
+                                                >
+                                                    Save
+                                                </RK_Button>
+                                            ) : (
+                                                <RK_Button
+                                                    // className="bg-dusky-blue text-white px-4 py-2 rounded"
+                                                    onClick={() => setIsEditingSettings(true)}
+                                                >
+                                                    Edit
+                                                </RK_Button>
+                                            )}
+                                            <RK_Button
+                                                type="danger"
+                                                onClick={handleDelete}
+                                            >Delete</RK_Button>
                                         </div>
+
+
+                                        {/* Need to refactor world size to be number of squares first if I want to implement gridSize Edits */}
+                                        {/* <h4 className="p-2">Grid Size</h4>
+                                        <input ref={gridSizeRef} type="number" className=" p-2 w-14" placeholder={gridSize} ></input>
+                                        <RK_Button onClick={() => {
+                                            if (gridSizeRef.current) {
+                                                setGridSize(gridSizeRef.current.value);
+                                            }
+                                        }}>Set Grid Size</RK_Button> */}
                                     </div>}
 
                                     {/* Button for Chat Dropdown */}

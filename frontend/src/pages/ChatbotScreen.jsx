@@ -13,7 +13,6 @@ const ChatbotScreen = () => {
     document.title = "Realm Keeper | Chatbot";
 
     const handleSend = async () => {
-        setLoading(true);
 
         if (!input.trim()) //return;
         {
@@ -38,6 +37,7 @@ const ChatbotScreen = () => {
             // { sender: "bot", text: quest }, //quest.quest_hook
             // ]);
         } else {
+            setLoading(true);
             // Placeholder for backend integration:
             let response = "";
             try {

@@ -1,10 +1,12 @@
 import { useRef } from "react";
-import Token from "./Token";
+import Asset from "./Asset";
+import screenToWorld from "../../utils/screenToWorld.js";
 
 export default function TokenLayer({
-  tokens, setTokens, gridSize,
-  interactionState, setInteractionState
-//   activeLayer, selectedId, setSelectedId,
+  assets, setAssets,
+  interactionState, setInteractionState,
+  camera, gridSize,
+  setContextMenu,
 }) {
   const dragging = useRef(null);
   const resizing = useRef(null);
@@ -14,100 +16,105 @@ export default function TokenLayer({
     return Math.round(value / gridSize) * gridSize;
   }
 
-//   function onMouseDown() {
-    // if (interactionState.activeLayer !== "token") return;
-
-    // dragging.current = id;
-    // last.current = { x: e.clientX, y: e.clientY };
-
-    // setInteractionState((s) => ({
-    //     ...s,
-    //     selected: { layer: "map", id: id },
-    //     mode: "drag",
-    // }));
-
-    // e.stopPropagation();
-//   }
-
   function onMouseMove(e) {
     if (dragging.current || resizing.current) {
         e.stopPropagation()
 
-        const dx = e.clientX - last.current.x;
-        const dy = e.clientY - last.current.y;
+        const pos = screenToWorld(e, camera);
 
         if (resizing.current) {
-            setTokens(tokens =>
-            tokens.map(token =>
-                token.id === resizing.current
-                ? { 
-                    ...token, 
-                    width: Math.max(gridSize, token.width + dx), 
-                    height: Math.max(gridSize, token.height + dy), 
-                }
-                : token
-                )
-            );
 
-            // last.current = { x: e.clientX, y: e.clientY };
-            // return
-        }
+            const r = resizing.current;
+            let newWidth = 0;
+            let newHeight = 0;
+            let newX = 0;
+            let newY = 0;
+
+            if (r.horizontal == "l") {
+              newWidth = Math.max(50, r.origWidth - (pos.x - r.startX));
+              newX = Math.min(r.origX, r.origX + (pos.x - r.startX));
+            }
+            if (r.horizontal == "r") {
+              newWidth = Math.max(50, r.origWidth + (pos.x - r.startX));
+            }
+            if (r.vertical == "t") {
+              newHeight = Math.max(50, r.origHeight - (pos.y - r.startY));
+              newY = Math.min(r.origY, r.origY + (pos.y - r.startY));
+            }
+            if (r.vertical == "b") {
+              newHeight = Math.max(50, r.origHeight + (pos.y - r.startY));
+            }
+
+            setAssets(assets =>
+            assets.map(asset =>
+                asset?.id === resizing.current?.id
+                ? { 
+                    ...asset, 
+                    width: newWidth,
+                    height: newHeight,
+                    x: newX == 0 ? asset.x : newX,
+                    y: newY == 0 ? asset.y : newY,
+                }
+                : asset
+                )
+            )
+        };
 
         if (dragging.current) {
-            setTokens(tokens =>
-                tokens.map(token =>
-                    token.id === dragging.current
+
+            const d = dragging.current;
+            const newX = d.origX + (pos.x - d.startX);
+            const newY = d.origY + (pos.y - d.startY);
+
+            setAssets(assets =>
+                assets.map(asset =>
+                    asset.id === d.id
                     ? { 
-                        ...token, 
-                        x: token.x + dx, 
-                        y: token.y + dy 
+                        ...asset, 
+                        x: newX, 
+                        y: newY, 
                     }
-                    : token
+                    : asset
                 )
-            );
-
-            // last.current = { x: e.clientX, y: e.clientY };
-            // return
-        }
-
-        last.current = { x: e.clientX, y: e.clientY };
-    }
-  }
+            )
+        };
+    };
+  };
 
   function onMouseUp() {
     if (dragging.current) {
-      const draggedId = dragging.current;
+      const draggedId = dragging.current.id;
 
-      setTokens(tokens =>
-        tokens.map(token => {
-          if (token.id !== draggedId) return token;
-          if (!token.snapToGrid) return token;
+      setAssets(assets =>
+        assets.map(asset => {
+          if (asset.id !== draggedId) return asset;
+          if (!asset.snapToGrid) return asset;
 
           return {
-            ...token,
-            x: snapToGrid(token.x),
-            y: snapToGrid(token.y),
-          };
+            ...asset,
+            x: snapToGrid(asset.x),
+            y: snapToGrid(asset.y),
+          }
         })
-      );
-    }
+      )
+    };
 
     if (resizing.current) {
-      const resizedId = resizing.current;
+      const resizedId = resizing.current.id;
 
-      setTokens(tokens =>
-        tokens.map(token => {
-          if (token.id !== resizedId) return token;
-          if (!token.snapToGrid) return token;
+      setAssets(assets =>
+        assets.map(asset => {
+          if (asset.id !== resizedId) return asset;
+          if (!asset.snapToGrid) return asset;
 
           return {
-            ...token,
-            width: Math.max(gridSize, snapToGrid(token.width)),
-            height: Math.max(gridSize, snapToGrid(token.height)),
-          };
+            ...asset,
+            width: Math.max(gridSize, snapToGrid(asset.width)),
+            height: Math.max(gridSize, snapToGrid(asset.height)),
+          }
         })
-      );
-    }
+      )
+    };
 
     dragging.current = null;
     resizing.current = null;
@@ -118,8 +125,8 @@ export default function TokenLayer({
         ...s,
         selected: null,
         mode: "idle",
-    }));
-  }
+    }))
+  };
 
   return (
     <div
@@ -129,43 +136,19 @@ export default function TokenLayer({
       onMouseLeave={onMouseUp}
       onMouseDown={onBackgroundMouseDown}
     >
-      {tokens.map(token => (
-        <Token 
-            key={token.id}
-            token={token} 
+      {assets.map(asset => (
+        asset.layer === "token" && <Asset 
+            key={asset.id}
+            asset={asset} 
             interactionState={interactionState}
             setInteractionState={setInteractionState}
-            // activeLayer={activeLaye selectedId={selectedId} setSelectedId={setSelectedId}
             dragging={dragging}
             resizing={resizing}
             last={last}
+            camera={camera}
+            setAssets={setAssets}
+            setContextMenu={setContextMenu}
         />
-        // <div
-        //   key={token.id}
-        //   onMouseDown={e => onMouseDown(e, token.id)}
-        //   style={{
-        //     position: "absolute",
-        //     left: token.x,
-        //     top: token.y,
-        //     width: token.width,
-        //     height: token.height,
-        //     cursor: interactionState.activeLayer === "token" ? "grab" : "default",
-        //     outline:
-        //       interactionState.selectedId === token.id
-        //         ? "2px solid #60a5fa"
-        //         : "none",
-        //   }}
-        // >
-        //   <img
-        //     src={token.src}
-        //     draggable={false}
-        //     style={{
-        //       width: "100%",
-        //       height: "100%",
-        //       pointerEvents: "none",
-        //     }}
-        //   />
-        // </div>
       ))}
     </div>
   );

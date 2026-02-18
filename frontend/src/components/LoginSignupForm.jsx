@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import supabase from "../services/supabase-client";
 import logo from "../assets/RealmKeeperLogo.png";
+import RK_Button from "./RK_Button";
 
 function LoginSignupForm({ onSignIn }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -107,39 +108,36 @@ function LoginSignupForm({ onSignIn }) {
             </p>
         )}
 
-        <button
+        <RK_Button
           type="submit"
           disabled={loading}
-          className="mb-4 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
+          className="mb-4 bg-pale-orange text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
         >
           {loading
             ? "Loading..."
             : isSignUp
             ? "Sign Up"
             : "Sign In"}
-        </button>
+        </RK_Button>
 
         {!isSignUp && (
           <>
-            <button
-              type="button"
-              className="mb-4 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
+            <RK_Button
+              className="mb-4 text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
               onClick={handleGoogleSignin}
             >
               Sign in with Google
-            </button>
-            <button
-              type="button"
-              className="mb-6 bg-[#504B52] text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
+            </RK_Button>
+            <RK_Button
+              className="mb-6 text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
               onClick={handleDiscordSignin}
             >
               Sign in with Discord
-            </button>
+            </RK_Button>
           </>
         )}
 
-        <button
-          type="button"
+        <RK_Button
           onClick={() => {
             setIsSignUp(!isSignUp);
             setConfEmailSent(false);
@@ -147,7 +145,7 @@ function LoginSignupForm({ onSignIn }) {
           className="text-[#D9DDDC] underline hover:opacity-80 transition"
         >
           {isSignUp ? "Switch to Sign In" : "Create Account"}
-        </button>
+        </RK_Button>
       </form>
     </div>
   );

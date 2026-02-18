@@ -12,6 +12,7 @@ import WorldScreen from "./pages/WorldScreen";
 import CampaignScreen from "./pages/CampaignScreen";
 import ArticleScreen from "./pages/ArticleScreen";
 import SessionScreen from "./pages/SessionScreen";
+import EmailConfirmedScreen from "./pages/EmailConfirmedScreen";
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -95,6 +96,10 @@ function App() {
         <Route
           path="/session/:id"
           element={<SessionScreen />}
+        />
+        <Route
+          path="/email-confirmed"
+          element={<EmailConfirmedScreen />}
         />
       </Routes>
     </Router>
