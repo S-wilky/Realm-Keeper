@@ -19,9 +19,9 @@ import RK_Icon from "../components/RK_Icon";
 
 const initialSectionsData = {
     Worlds: [],
-    Campaigns: [],
     Articles: [],
     "AI Chat": ["Chatbot"],
+    Campaigns: [],
     Sessions: [],
     // Statblocks: [],
 };
@@ -64,12 +64,12 @@ const Dashboard = ({ user = "User" }) => {
                 .from("worlds")
                 .select("*")
                 .eq("user_id", user.id);
-            const { data: campaigns } = await supabase
-                .from("campaigns")
-                .select("*")
-                .eq("user_id", user.id);
             const { data: articles } = await supabase
                 .from("articles")
+                .select("*")
+                .eq("user_id", user.id);
+            const { data: campaigns } = await supabase
+                .from("campaigns")
                 .select("*")
                 .eq("user_id", user.id);
             const { data: sessions } = await supabase
@@ -80,8 +80,8 @@ const Dashboard = ({ user = "User" }) => {
             setSectionsDataState((prev) => ({
                 ...prev,
                 Worlds: worlds || [],
-                Campaigns: campaigns || [],
                 Articles: articles || [],
+                Campaigns: campaigns || [],
                 Sessions: sessions || [],
             }));
         };
@@ -147,8 +147,8 @@ const Dashboard = ({ user = "User" }) => {
 
         return () => {
             supabase.removeChannel(worldChannel);
-            supabase.removeChannel(campaignChannel);
             supabase.removeChannel(articleChannel);
+            supabase.removeChannel(campaignChannel);
             supabase.removeChannel(sessionChannel);
         };
     }, [user.id]);
@@ -192,10 +192,10 @@ const Dashboard = ({ user = "User" }) => {
                                 navigate("/chatbot");
                             } else if (section === "Worlds") {
                                 navigate(`/world/${item.world_id}`, { state: item });
-                            } else if (section === "Campaigns") {
-                                navigate(`/campaign/${item.campaign_id}`, { state: item });
                             } else if (section === "Articles") {
                                 navigate(`/article/${item.article_id}`, { state: item });
+                            } else if (section === "Campaigns") {
+                                navigate(`/campaign/${item.campaign_id}`, { state: item });
                             } else if (section === "Sessions") {
                                 navigate(`/session/${item.session_id}`, { state: item });   ///${item.stage_id}
                             }
@@ -393,8 +393,8 @@ const Dashboard = ({ user = "User" }) => {
                                     onClick={(e) => {
                                         e.stopPropagation(); // prevent section toggle
                                         if (section === "Worlds") handleOpenPopup("world");
-                                        else if (section === "Campaigns") handleOpenPopup("campaign");
                                         else if (section === "Articles") handleOpenPopup("article");
+                                        else if (section === "Campaigns") handleOpenPopup("campaign");
                                         else if (section === "Sessions") handleOpenPopup("session");
                                         else if (section === "AI Chat") navigate("/chatbot");
                                     }}
@@ -420,17 +420,17 @@ const Dashboard = ({ user = "User" }) => {
                             onClose={handleClosePopup} 
                             onCreate={handleCreateWorld} />
                     )}
-                    {activePopup === "campaign" && (
-                        <CampaignCreationForm
-                            onClose={handleClosePopup}
-                            onCreate={handleCreateCampaign}
-                            worlds={sectionsDataState.Worlds}
-                        />
-                    )}
                     {activePopup === "article" && (
                         <ArticleCreationForm
                             onClose={handleClosePopup}
                             onCreate={handleCreateArticle}
+                            worlds={sectionsDataState.Worlds}
+                        />
+                    )}
+                    {activePopup === "campaign" && (
+                        <CampaignCreationForm
+                            onClose={handleClosePopup}
+                            onCreate={handleCreateCampaign}
                             worlds={sectionsDataState.Worlds}
                         />
                     )}
