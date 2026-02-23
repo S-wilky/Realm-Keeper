@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSearch, FiMenu, FiPlus } from "react-icons/fi";
 import logout from "../services/SessionManagement";
-import fetchUsername from "../utils/fetchUsername";
+// import fetchUsername from "../utils/fetchUsername";
 import "../styles/overrides.css";
 
 
@@ -52,7 +52,21 @@ const Dashboard = ({ user = "User" }) => {
     useEffect(() => {
         if (!user?.id) return;
 
-        setUsername(fetchUsername(user.id));
+        async function fetchUsername() {
+            const { data, error } = await supabase
+                .from("profile")
+                .select("username")
+                .eq("profile_id", user?.id)
+                .maybeSingle();
+
+            if (error) console.log("Dashboard fetch username error:", error);
+            if (data?.username) setUsername(data.username);
+                //data.username;
+        };
+
+        fetchUsername();
+    
+        // setUsername(fetchUsername(user.id));
     }, [user?.id]);
 
     // Fetch saved popups from Supabase
@@ -184,7 +198,7 @@ const Dashboard = ({ user = "User" }) => {
                 {items.map((item, index) => (
                     <div
                         key={index}
-                        className="bg-[#2C3539] border border-gray-600 rounded-xl text-center py-4 text-[#D9DDDC] hover:bg-[#37414A] transition cursor-pointer"
+                        className="bg-gunmetal border border-gray-600 rounded-xl text-center py-4 text-[#D9DDDC] hover:opacity-80 hover:bg-dusky-blue transition cursor-pointer"
                         onClick={() => {
                             // Navigate to Chatbot page when clicking "Chatbot"
                             // Navigate to screens "World", "Campaigns", "Articles"
@@ -328,11 +342,13 @@ const Dashboard = ({ user = "User" }) => {
                     src="https://xkrrvlwvkmygmxcrqauq.supabase.co/storage/v1/object/public/realm-assets/RealmKeeperLogo.png"
                     alt="Realm Keeper Logo"
                     className="w-20 h-20"
+                    // onClick={() => {}}
                 />
 
-                <h1 className="text-3xl font-semibold text-center grow">
-                    Welcome back, {username || user?.email}!
-                </h1>
+                {username != "" ? <h1 className="text-3xl font-semibold text-center grow">
+                    Welcome back, {username}!
+                    </h1>
+                : <p className="text-3xl">Welcome to Realm Keeper! Set your username from the profile page {"---->"}</p>}
 
                 <div className="flex items-center gap-3">
                     {/* Search bar */}
@@ -381,7 +397,7 @@ const Dashboard = ({ user = "User" }) => {
                 {Object.entries(sectionsDataState).map(([section, items]) => (
                     <div
                         key={section}
-                        className="border border-gray-500 rounded-2xl bg-[#2C3539] p-5"
+                        className="border border-gray-500 rounded-2xl bg-abbey p-5 hover:opacity-90"
                     >
                         <div
                             className="flex justify-between items-center cursor-pointer"
@@ -389,7 +405,7 @@ const Dashboard = ({ user = "User" }) => {
                         >
                             <div className="flex items-center gap-2">
                                 <h2 className="text-xl font-semibold">{section}</h2>
-                                <span className="bg-[#EAAC59] text-black px-1.5 py-0.5 rounded-full text-sm flex items-center"
+                                <span className="bg-pale-orange text-black px-1.5 py-0.5 rounded-full text-sm flex items-center hover:opacity-80"
                                     onClick={(e) => {
                                         e.stopPropagation(); // prevent section toggle
                                         if (section === "Worlds") handleOpenPopup("world");

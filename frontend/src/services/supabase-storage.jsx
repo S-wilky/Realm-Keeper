@@ -51,13 +51,19 @@ function isRealAsset(file) {
   return !file.name.startsWith(".emptyFolderPlaceholder");
 }
 
-export async function deleteAsset(folder, fileName, userId) {
+async function deleteAsset(folder, fileName, userId) {
+  const path = `${folder}/${userId}/${fileName}`;
+  
   const { error } = await supabase.storage
     .from("realm-assets")
-    .remove([`${folder}/${userId}/${fileName}`]);
+    .remove([path]);
 
-  if (error) throw error;
+  if (error) {
+    console.error(error);
+  } else {
+    console.warn("Deleting asset ", fileName);
+  }
 }
 
 
-export { uploadAsset, listAssets, getURL, isRealAsset };
+export { uploadAsset, listAssets, getURL, isRealAsset, deleteAsset };

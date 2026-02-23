@@ -6,9 +6,9 @@ import "../styles/overrides.css";
 //     type: "accent" | "confirm" | "danger"
 // }
 
-export default function RK_Button({type, size, disabled, onClick, children}) {
+export default function RK_Button({type, size, disabled, className, onClick, children}) {
     return (
-        <button onClick={disabled ? null : onClick} className={buttonStyles({type, size, disabled})}>
+        <button onClick={disabled ? null : onClick} className={buttonStyles({type, size, disabled, className})}>
             {children}
         </button>
     )

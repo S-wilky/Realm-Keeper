@@ -4,9 +4,11 @@ import { useRef } from "react";
 export default function MapViewport({ 
   worldX, setWorldX, worldY, setWorldY, gridSize, setGridSize,
   camera, setCamera, 
-  maps, setMaps, tokens, setTokens,
+  // maps, setMaps, tokens, setTokens,
+  assets, setAssets,
   interactionState, setInteractionState,
-  stageId, setStageId, sessionId
+  stageId, setStageId, sessionId,
+  // setContextMenu,
   // activeLayer, selectedId, setSelectedId, 
   }) {
   const viewportRef = useRef(null);
@@ -70,9 +72,11 @@ export default function MapViewport({
     >
       <MapStage camera={camera} 
         worldX={worldX} setWorldX={setWorldX} worldY={worldY} setWorldY={setWorldY} gridSize={gridSize} setGridSize={setGridSize}
-        maps={maps} setMaps={setMaps} tokens={tokens} setTokens={setTokens}
+        // maps={maps} setMaps={setMaps} tokens={tokens} setTokens={setTokens}
+        assets={assets} setAssets={setAssets}
         interactionState={interactionState} setInteractionState={setInteractionState} 
         stageId={stageId} setStageId={setStageId} sessionId={sessionId}
+        // setContextMenu={setContextMenu}
         // activeLayer={activeLayer} selectedId={selectedId} setSelectedId={setSelectedId}
       />
     </div>
