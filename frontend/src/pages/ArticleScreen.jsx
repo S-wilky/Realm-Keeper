@@ -226,10 +226,10 @@ const ArticleScreen = () => {
             {/* Main Page */}
             <div className="m-0 p-0 relative flex-1 overflow-y-auto">
                 {/* Background Image - TODO: Add logic to switch this out. */}
-                <img src="/src/assets/Snowy Mountain.jpg"
-                        alt="Realm Keeper Logo"
+                {/* <img src="/src/assets/Snowy Mountain.jpg"   //replace with link to supabase storage image. Set up image switching.
+                        alt="Background"
                         className="m-0 p-0 h-100 w-full absolute inset-0" //  object-cover for no distortion
-                />
+                /> */}
                 <div className="m-0 p-0 flex flex-col relative z-10">
                     {/* Title Box */}
                     <div className="flex items-center gap-2 mt-10 mb-10 p-10 bg-erie max-w-fit">
