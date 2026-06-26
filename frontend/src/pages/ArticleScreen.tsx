@@ -237,7 +237,7 @@ const ArticleScreen = () => {
                             <div className="flex items-center">
                                 {/* Article Icon - TODO: Add logic to update on click or based on article type */}
                                 <div className="shrink-0">
-                                    <RK_Icon size="md" color="duskyBlue" /*onClick={() => {}}*/ />
+                                    <RK_Icon icon="thingy" size="md" color="duskyBlue" /* onClick={() => {}} */ />
                                 </div>
                                 {/* Title */}
                                 <div className="relative overflow-hidden">

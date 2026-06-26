@@ -1,20 +1,28 @@
-import { tv } from "tailwind-variants";
+import React from 'react';
+import { tv } from 'tailwind-variants';
+
+interface TooltipProps {
+  children: React.ReactNode;
+  content: React.ReactNode;
+  side?: 'left' | 'right' | 'top' | 'bottom';
+  bg?: 'erie' | 'dark' | 'light';
+  text?: 'default' | 'dark' | 'light';
+  wrap?: boolean;
+  maxWidth?: 'none' | 'xs' | 'sm' | 'md';
+}
 
 export default function Tooltip({
   children,
   content,
-  side = "left",
-  bg = "erie",
-  text = "default",
+  side = 'left',
+  bg = 'erie',
+  text = 'default',
   wrap = false,
-  maxWidth = "sm",
-}) {
+  maxWidth = 'sm',
+}: TooltipProps) {
   return (
     <div className="relative inline-block w-full h-full group">
-      {/* <div className="w-full h-full flex items-center justify-center"> */}
-        {children}
-      {/* </div> */}
-
+      {children}
       <div className={tooltipStyles({ side, bg, text, wrap, maxWidth })}>
         {content}
         <div className={arrowStyles({ side, bg })} />

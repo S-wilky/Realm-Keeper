@@ -3,20 +3,34 @@ import {tv} from 'tailwind-variants';
 import "../styles/overrides.css";
 import getIconPath from '../utils/getIconPath';
 
+interface RK_IconProps {
+  icon: string;
+  color?: 'duskyBlue' | 'paleOrange' | 'pearlRiver' | 'gray400';
+  size?: 'fill' | 'sm' | 'md';
+  onClick?: () => void;
+  className?: string;
+}
 
-export default function RK_Icon({icon, color, size, onClick, className}) {
-    const clickable = Boolean(onClick);
-    const iconPath = getIconPath(icon);
+export default function RK_Icon({
+  icon,
+  color = 'duskyBlue',
+  size = 'fill',
+  onClick,
+  className = '',
+}: RK_IconProps) {
+  const clickable = Boolean(onClick);
+  const iconPath = getIconPath(icon);
 
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
-            onClick={onClick} className={iconStyles({ color, clickable, size }) + " " + (className ?? "")} 
-        >
-            {/* Actual icon */}
-             <path d={iconPath} /> {/*className={iconStyles({color})}*/}
-        </svg>
-    )
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+      onClick={onClick}
+      className={iconStyles({ color, clickable, size }) + ' ' + className}
+    >
+      <path d={iconPath} />
+    </svg>
+  );
 }
 
 const iconStyles = tv({

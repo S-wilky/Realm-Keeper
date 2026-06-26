@@ -49,7 +49,7 @@ function LoginSignupForm({ onSignIn }) {
     }
   }
 
-  async function handleGoogleSignin(e) {
+  async function handleGoogleSignin(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     try {
       const { error: GoogleSigninError } = await supabase.auth.signInWithOAuth({
@@ -109,9 +109,9 @@ function LoginSignupForm({ onSignIn }) {
         )}
 
         <RK_Button
-          type="submit"
+          htmlType="submit"
           disabled={loading}
-          className="mb-4 bg-pale-orange text-[#D9DDDC] px-4 py-3 rounded-md hover:opacity-80 transition"
+          className="mb-4 bg-pale-orange …"
         >
           {loading
             ? "Loading..."
