@@ -5,7 +5,7 @@ import getIconPath from '../utils/getIconPath';
 
 interface RK_IconProps {
   icon: string;
-  color?: 'duskyBlue' | 'paleOrange' | 'pearlRiver' | 'gray400';
+  color?: 'duskyBlue' | 'paleOrange' | 'pearlRiver' | 'gray400' | 'abbey';
   size?: 'fill' | 'sm' | 'md';
   onClick?: () => void;
   className?: string;
@@ -41,6 +41,7 @@ const iconStyles = tv({
             paleOrange: "fill-pale-orange",
             pearlRiver: "fill-pearl-river",
             gray400: "fill-gray-400",
+            abbey: "fill-abbey",
         },
         size: {
             fill: "w-full h-full",

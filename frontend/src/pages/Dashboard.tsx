@@ -463,7 +463,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                         <RK_Icon
                             icon="hamburger"
                             size="sm"
-                            color="Abbey"
+                            color="abbey"
                             onClick={undefined}
                             className=""
                         />
