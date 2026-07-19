@@ -1,5 +1,14 @@
 import supabase from "./supabase-client";
 
+export interface Asset {
+    name: string;
+    id: string | null;      // null for folders
+    created_at: string;
+    updated_at: string;
+    metadata: Record<string, any>;
+    url?: string;           // Optional because we add this manually later
+}
+
 type AssetFolder =
     | "maps"
     | "tokens"
@@ -30,7 +39,7 @@ async function uploadAsset(
 async function listAssets(
     folder: AssetFolder,
     userId: string
-): Promise<unknown[] | undefined> {
+): Promise<Asset[] | undefined> {
     const { data, error } = await supabase.storage
         .from("realm-assets")
         .list(`${folder}/${userId}`, {
@@ -97,5 +106,5 @@ export {
     listAssets,
     getURL,
     isRealAsset,
-    deleteAsset,
+    deleteAsset, type AssetFolder,
 };

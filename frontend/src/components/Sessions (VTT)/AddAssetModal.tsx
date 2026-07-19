@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import RK_Button from "../RK_Button";
-import { getURL, listAssets, uploadAsset, isRealAsset, deleteAsset } from "../../services/supabase-storage";
+import { getURL, listAssets, uploadAsset, isRealAsset, deleteAsset, AssetFolder } from "../../services/supabase-storage";
 
 export default function AddAssetModal({ onClose, onAddImage, userId, interactionState }) {
   const [assets, setAssets] = useState([]);
@@ -10,12 +10,13 @@ export default function AddAssetModal({ onClose, onAddImage, userId, interaction
   const fileInputRef = useRef(null);
 
   const loadAssets = useCallback(async () => {
-      const files = ((await listAssets("assets", userId))).filter(isRealAsset);   //inline: files.filter(file => !file.name.startsWith(".emptyFolderPlaceholder"))
+      const rawFiles = await listAssets("assets" as AssetFolder, userId);
+      const files = (rawFiles || []).filter(isRealAsset);   //inline: files.filter(file => !file.name.startsWith(".emptyFolderPlaceholder"))
 
       const withUrls = await Promise.all(
         files.map(async (file) => ({
           ...file,
-          url: await getURL("assets", file.name, userId),
+          url: await getURL("assets" as AssetFolder, file.name, userId),
         }))
       );
 
@@ -52,14 +53,14 @@ export default function AddAssetModal({ onClose, onAddImage, userId, interaction
     const selectedFile = assets.filter(a => a.url == selectedUrl)[0]
     // console.log(selectedFile);
     // console.log("assets", userId, selectedFile.name);
-    await deleteAsset("assets", selectedFile.name, userId);
+    await deleteAsset("assets" as AssetFolder, selectedFile.name, userId);
     refreshAssets();
   }
 
   async function refreshAssets() {
     
     // refresh asset list so it appears immediately
-    const updatedAssets = await ((await listAssets("assets", userId))).filter(isRealAsset);
+    const updatedAssets = await ((await listAssets("assets" as AssetFolder, userId))).filter(isRealAsset);
     // console.log(updatedAssets);
     setAssets(updatedAssets);
   }
@@ -107,7 +108,7 @@ export default function AddAssetModal({ onClose, onAddImage, userId, interaction
                 // console.log(file);
 
                 setUploading(true);
-                const url = await uploadAsset(file, "assets", userId);
+                const url = await uploadAsset(file, "assets" as AssetFolder, userId);
                 // console.log(url);
                 setSelectedUrl(url);
 

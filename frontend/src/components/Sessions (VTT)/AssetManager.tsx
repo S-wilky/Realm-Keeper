@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import RK_Button from "../RK_Button";
-import { getURL, listAssets, uploadAsset, isRealAsset } from "../../services/supabase-storage";
+import { getURL, listAssets, uploadAsset, isRealAsset, type AssetFolder } from "../../services/supabase-storage";
 
 export default function AssetManager({ onAddAsset, userId, selectedLayer }) {
     const [assets, setAssets] = useState([]);
@@ -11,12 +11,13 @@ export default function AssetManager({ onAddAsset, userId, selectedLayer }) {
 
     useEffect(() => {
         async function loadAssets() {
-        const files = ((await listAssets("assets", userId))).filter(isRealAsset);   //inline: files.filter(file => !file.name.startsWith(".emptyFolderPlaceholder"))
+        const rawFiles = await listAssets("assets" as AssetFolder, userId);
+        const files = (rawFiles || []).filter(isRealAsset);   //inline: files.filter(file => !file.name.startsWith(".emptyFolderPlaceholder"))
 
         const withUrls = await Promise.all(
             files.map(async (file) => ({
             ...file,
-            url: await getURL("assets", file.name, userId),
+            url: await getURL("assets" as AssetFolder, file.name, userId),
             }))
         );
 
