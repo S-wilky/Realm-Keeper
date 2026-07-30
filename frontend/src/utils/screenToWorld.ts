@@ -1,3 +1,5 @@
+import type { MouseEvent } from "react";
+
 type Camera = {
     x: number;
     y: number;
