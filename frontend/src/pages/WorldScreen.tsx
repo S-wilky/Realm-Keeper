@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import supabase from "../services/supabase-client.jsx";
+import supabase from "../services/supabase-client";
 import "../styles/overrides.css"
-import SideMenu from "../components/SideMenu.js"
-import { wholeScreen, mainScreen } from "../styles/tailwindClasses.js";
+import SideMenu from "../components/SideMenu"
+import { wholeScreen, mainScreen } from "../styles/tailwindClasses";
 
 const WorldScreen = () => {
     const { state } = useLocation();

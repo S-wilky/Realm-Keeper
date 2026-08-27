@@ -19,6 +19,8 @@ import EmailConfirmedScreen from "./pages/EmailConfirmedScreen";
 import "./App.css";
 import logo from "./assets/RealmKeeperLogoSVG1.svg";
 
+// import ComponentPreview from "./pages/ComponentPreview";
+
 function App() {
     const [showSplash, setShowSplash] = useState<boolean>(true);
     const [session, setSession] = useState<Session | null>(null);
@@ -96,6 +98,8 @@ function App() {
                     path="/email-confirmed"
                     element={<EmailConfirmedScreen />}
                 />
+
+                {/* <Route path="/component-preview" element={<ComponentPreview />} /> */}
             </Routes>
         </Router>
     );
