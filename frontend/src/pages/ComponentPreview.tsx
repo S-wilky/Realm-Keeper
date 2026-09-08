@@ -1,12 +1,24 @@
 import { useState } from "react";
 import DropDown from "../components/DropDown";
 import MultiSelect from "../components/MultiSelect";
+import UnderlineInput from "../components/UnderlineInput";
+import UnderlineMultiSelect from "../components/UnderlineMultiSelect";
+import UnderlineDropDown from "../components/UnderlineDropDown";
+import FlipChip from "../components/FlipChip";
 
 const options = [
     { label: "Character", value: "character" },
     { label: "Location", value: "location" },
     { label: "Organization", value: "organization" },
     { label: "Item", value: "item" },
+];
+
+const underlineDropdownOptions = [
+    { label: "Character", value: "character" },
+    { label: "Location", value: "location" },
+    { label: "Organization", value: "organization" },
+    { label: "Item", value: "item" },
+    { label: "Event", value: "event" },
 ];
 
 export default function ComponentPreview() {
@@ -24,6 +36,12 @@ export default function ComponentPreview() {
     const [errorMultiSelectValue, setErrorMultiSelectValue] = useState<
         string[]
     >([]);
+
+    // State hooks for the new Underline & FlipChip additions
+    const [titleValue, setTitleValue] = useState("");
+    const [aliasesValue, setAliasesValue] = useState<string[]>(["The Compact", "Ashen Oath"]);
+    const [typeValue, setTypeValue] = useState("organization");
+    const [underlineErrorValue, setUnderlineErrorValue] = useState<string[]>([]);
 
     return (
         <div
@@ -121,6 +139,72 @@ export default function ComponentPreview() {
                     />
                 </section>
 
+                {/* --- Bekah's work is safe above, new components below --- */}
+                
+                <hr className="border-[#2A3A55] my-8" />
+
+                {/* Underline Input */}
+                <section>
+                    <h2 className="mb-4 text-lg font-semibold">
+                        Underline — Input
+                    </h2>
+                    <UnderlineInput
+                        label="Title"
+                        value={titleValue}
+                        onChange={setTitleValue}
+                        placeholder="Name this Tome"
+                    />
+                </section>
+
+                {/* Underline MultiSelect */}
+                <section>
+                    <h2 className="mb-4 text-lg font-semibold">
+                        Underline — MultiSelect (Aliases)
+                    </h2>
+                    <UnderlineMultiSelect
+                        label="Aliases"
+                        value={aliasesValue}
+                        onChange={setAliasesValue}
+                        placeholder="Add an alias"
+                    />
+                </section>
+
+                {/* Underline DropDown */}
+                <section>
+                    <h2 className="mb-4 text-lg font-semibold">
+                        Underline — DropDown
+                    </h2>
+                    <UnderlineDropDown
+                        label="Type — dropdown"
+                        options={underlineDropdownOptions}
+                        value={typeValue}
+                        onChange={setTypeValue}
+                        placeholder="Select a type"
+                    />
+                </section>
+
+                {/* Underline MultiSelect - Error */}
+                <section>
+                    <h2 className="mb-4 text-lg font-semibold">
+                        Underline — MultiSelect Error State
+                    </h2>
+                    <UnderlineMultiSelect
+                        label="Aliases"
+                        value={underlineErrorValue}
+                        onChange={setUnderlineErrorValue}
+                        error="Already used by another Tome in this world."
+                        placeholder="Add an alias"
+                    />
+                </section>
+
+                {/* FlipChip */}
+                <section>
+                    <h2 className="mb-4 text-lg font-semibold">FlipChip (Interactive Toggle)</h2>
+                    <FlipChip
+                        initialState="draft"
+                        onChange={(newState) => console.log("Chip flipped to:", newState)}
+                     />
+                </section>
             </div>
         </div>
     );
