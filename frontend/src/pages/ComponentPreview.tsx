@@ -5,6 +5,7 @@ import UnderlineInput from "../components/UnderlineInput";
 import UnderlineMultiSelect from "../components/UnderlineMultiSelect";
 import UnderlineDropDown from "../components/UnderlineDropDown";
 import FlipChip from "../components/FlipChip";
+import LeftSideBar from "../components/LeftSideBar";
 
 const options = [
     { label: "Character", value: "character" },
@@ -204,6 +205,15 @@ export default function ComponentPreview() {
                         initialState="draft"
                         onChange={(newState) => console.log("Chip flipped to:", newState)}
                      />
+                </section>
+                
+                {/* Left Side Bar */}
+                <section className="p-6 bg-[#080E18] min-h-screen flex">
+                    <LeftSideBar 
+                        currentPath="worlds"
+                        onNavigate={(id) => console.log("Navigated to:", id)}
+                        onCreateClick={() => console.log("Create clicked")}
+                    />
                 </section>
             </div>
         </div>
