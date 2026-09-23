@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.model.phi3Model import model, tokenizer
+from phi3Model import model, tokenizer
 from fastapi.middleware.cors import CORSMiddleware
 from app.schemas import GenerateRequest
 
