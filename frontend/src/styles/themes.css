@@ -1,0 +1,329 @@
+/* ==========================================================================
+   Realm Keeper themes
+   Generated from Figma "Realm Keeper Flow" -> collection "Realm Keeper Core"
+     dark   = mode "RK Default (Testing)"
+     dragon = mode "Dragon"
+     light  = mode "Light"
+
+   Naming (Figma -> CSS variable -> Tailwind class example):
+     surface/default  -> --surface        -> bg-surface
+     surface/raised   -> --surface-raised -> bg-surface-raised
+     text/primary     -> --t-primary      -> text-t-primary
+     text/muted       -> --t-muted        -> text-t-muted
+     line/border      -> --border         -> border-border
+     action/primary   -> --primary        -> bg-primary, hover:bg-primary-hover
+     status/danger    -> --danger         -> text-danger, bg-danger-subtle
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Tailwind utilities that point at the runtime variables
+   -------------------------------------------------------------------------- */
+@theme inline {
+  /* Surfaces */
+  --color-surface-canvas: var(--surface-canvas);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-selected: var(--surface-selected);
+  --color-scrim: var(--scrim);
+
+  /* Lines */
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-divider: var(--divider);
+  --color-focus: var(--focus);
+
+  /* Text */
+  --color-t-primary: var(--t-primary);
+  --color-t-secondary: var(--t-secondary);
+  --color-t-muted: var(--t-muted);
+  --color-t-disabled: var(--t-disabled);
+  --color-on-primary: var(--on-primary);
+  --color-on-secondary: var(--on-secondary);
+  --color-on-status: var(--on-status);
+
+  /* Actions */
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-pressed: var(--secondary-pressed);
+  --color-selection: var(--selection);
+
+  /* Content */
+  --color-link: var(--link);
+  --color-secret: var(--secret);
+  --color-secret-bg: var(--secret-bg);
+  --color-secret-bg-hover: var(--secret-bg-hover);
+
+  /* Status */
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-danger-border: var(--danger-border);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-warning-border: var(--warning-border);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-success-border: var(--success-border);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+  --color-info-border: var(--info-border);
+
+  /* Article state */
+  --color-draft: var(--draft);
+  --color-finished: var(--finished);
+
+  /* Player presence (cursors, avatars) */
+  --color-presence-1: var(--presence-1);
+  --color-presence-2: var(--presence-2);
+  --color-presence-3: var(--presence-3);
+  --color-presence-4: var(--presence-4);
+  --color-presence-5: var(--presence-5);
+  --color-presence-6: var(--presence-6);
+
+  /* Chart series */
+  --color-series-1: var(--series-1);
+  --color-series-2: var(--series-2);
+  --color-series-3: var(--series-3);
+  --color-series-4: var(--series-4);
+  --color-series-5: var(--series-5);
+  --color-series-6: var(--series-6);
+  --color-series-7: var(--series-7);
+  --color-series-8: var(--series-8);
+
+  /* Effects */
+  --color-shadow: var(--shadow);
+  --color-shimmer: var(--shimmer);
+}
+
+/* Values that are the same in every theme -> rounded-control, rounded-card */
+@theme {
+  --radius-control: 8px;
+  --radius-card: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Theme values
+   -------------------------------------------------------------------------- */
+
+/* Dark (default) - Figma mode "RK Default (Testing)" */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --surface-canvas: #0b1220;
+  --surface-sunken: #070d18;
+  --surface: #121c2e;
+  --surface-raised: #1b2740;
+  --surface-selected: #1e3a6b;
+  --scrim: #0a0714b8;
+
+  --border: #3b3466;
+  --border-strong: #514a85;
+  --divider: #2a2450;
+  --focus: #eccb6f;
+
+  --t: #efe7dd;
+  --t-secondary: #a79fc4;
+  --t-muted: #6e6690;
+  --t-disabled: #4c4670;
+  --on-primary: #1c1633;
+  --on-secondary: #5c290e;
+  --on-status: #14102a;
+
+  --primary: #1564ae;
+  --primary-hover: #3177b8;
+  --primary-pressed: #135ca0;
+  --secondary: #f19143;
+  --secondary-hover: #f39e5a;
+  --secondary-pressed: #d47f3b;
+  --selection: #33507f;
+
+  --link: #c97cf4;
+  --secret: #eccb6f;
+  --secret-bg: #242413;
+  --secret-bg-hover: #2d2d19;
+
+  --danger: #e04a5f;
+  --danger-subtle: #3a1826;
+  --danger-border: #6e2a3c;
+  --warning: #e67c50;
+  --warning-subtle: #38301c;
+  --warning-border: #6e5c2e;
+  --success: #4fbfa5;
+  --success-subtle: #12332f;
+  --success-border: #2a6459;
+  --info: #8fb0e8;
+  --info-subtle: #1a2544;
+  --info-border: #33487e;
+
+  --draft: #eccb6f;
+  --finished: #4fbfa5;
+
+  --presence-1: #6e92ce;
+  --presence-2: #c08fb6;
+  --presence-3: #eccb6f;
+  --presence-4: #da6a3e;
+  --presence-5: #4fbfa5;
+  --presence-6: #9a8be0;
+
+  --series-1: #6e92ce;
+  --series-2: #da6a3e;
+  --series-3: #4fbfa5;
+  --series-4: #c08fb6;
+  --series-5: #eccb6f;
+  --series-6: #9a8be0;
+  --series-7: #5fa8d3;
+  --series-8: #b4685a;
+
+  --shadow: #0000008c;
+  --shimmer: #2a2450;
+}
+
+/* Dragon - Figma mode "Dragon" */
+[data-theme="dragon"] {
+  color-scheme: dark;
+
+  --surface-canvas: #14102a;
+  --surface-sunken: #100c22;
+  --surface: #1c1633;
+  --surface-raised: #1c1b48;
+  --surface-selected: #2c3774;
+  --scrim: #0a0714b8;
+
+  --border: #3b3466;
+  --border-strong: #514a85;
+  --divider: #2a2450;
+  --focus: #eccb6f;
+
+  --t: #efe7dd;
+  --t-secondary: #a79fc4;
+  --t-muted: #6e6690;
+  --t-disabled: #4c4670;
+  --on-primary: #1c1633;
+  --on-secondary: #efe7dd;
+  --on-status: #14102a;
+
+  --primary: #da6a3e;
+  --primary-hover: #e67c50;
+  --primary-pressed: #ae5340;
+  --secondary: #1c1b48;
+  --secondary-hover: #262459;
+  --secondary-pressed: #161536;
+  --selection: #3a2f6e;
+
+  --link: #6e92ce;
+  --secret: #c08fb6;
+  --secret-bg: #2a1f3c;
+  --secret-bg-hover: #ffffff; /* Figma value - see note */
+
+  --danger: #e04a5f;
+  --danger-subtle: #3a1826;
+  --danger-border: #6e2a3c;
+  --warning: #eccb6f;
+  --warning-subtle: #38301c;
+  --warning-border: #6e5c2e;
+  --success: #4fbfa5;
+  --success-subtle: #12332f;
+  --success-border: #2a6459;
+  --info: #8fb0e8;
+  --info-subtle: #1a2544;
+  --info-border: #33487e;
+
+  --draft: #eccb6f;
+  --finished: #4fbfa5;
+
+  --presence-1: #6e92ce;
+  --presence-2: #c08fb6;
+  --presence-3: #eccb6f;
+  --presence-4: #da6a3e;
+  --presence-5: #4fbfa5;
+  --presence-6: #9a8be0;
+
+  --series-1: #6e92ce;
+  --series-2: #da6a3e;
+  --series-3: #4fbfa5;
+  --series-4: #c08fb6;
+  --series-5: #eccb6f;
+  --series-6: #9a8be0;
+  --series-7: #5fa8d3;
+  --series-8: #b4685a;
+
+  --shadow: #0000008c;
+  --shimmer: #2a2450;
+}
+
+/* Light - Figma mode "Light" */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --surface-canvas: #f7f2e8;
+  --surface-sunken: #e5dac7;
+  --surface: #efe7d8;
+  --surface-raised: #fdfaf3;
+  --surface-selected: #e2d6be;
+  --scrim: #281e1273;
+
+  --border: #d3c6ac;
+  --border-strong: #b3a488;
+  --divider: #e3d9c7;
+  --focus: #c2551a;
+
+  --t: #1a1710;
+  --t-secondary: #4e4738;
+  --t-muted: #857c6b;
+  --t-disabled: #ada695;
+  --on-primary: #fdfaf3;
+  --on-secondary: #1a1710;
+  --on-status: #fdfaf3;
+
+  --primary: #c2551a;
+  --primary-hover: #d9662a;
+  --primary-pressed: #9c4212;
+  --secondary: #fdfaf3;
+  --secondary-hover: #f1e9da;
+  --secondary-pressed: #e5dac7;
+  --selection: #e4d5b4;
+
+  --link: #1e6e62;
+  --secret: #6b3fa0;
+  --secret-bg: #ede4f5;
+  --secret-bg-hover: #ffffff; /* Figma value - see note */
+
+  --danger: #a81e37;
+  --danger-subtle: #f8e3e5;
+  --danger-border: #e0bac0;
+  --warning: #8a5a08;
+  --warning-subtle: #f8eed6;
+  --warning-border: #e0cb9c;
+  --success: #0f6b5e;
+  --success-subtle: #ddefe9;
+  --success-border: #a5d0c6;
+  --info: #2a4f94;
+  --info-subtle: #e0e6f5;
+  --info-border: #b5c2e2;
+
+  --draft: #8a5a08;
+  --finished: #0f6b5e;
+
+  --presence-1: #1e6e62;
+  --presence-2: #6b3fa0;
+  --presence-3: #8a5a08;
+  --presence-4: #c2551a;
+  --presence-5: #2a4f94;
+  --presence-6: #a63e58;
+
+  --series-1: #2a4f94;
+  --series-2: #c2551a;
+  --series-3: #0f6b5e;
+  --series-4: #6b3fa0;
+  --series-5: #8a5a08;
+  --series-6: #1e6e62;
+  --series-7: #a63e58;
+  --series-8: #6b7c9c;
+
+  --shadow: #46321928;
+  --shimmer: #e5dac7;
+}
