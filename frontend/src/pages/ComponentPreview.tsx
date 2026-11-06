@@ -10,6 +10,8 @@ import { ThemePicker } from "../components/ThemePicker";
 import "../styles/themes.css";
 import InsertMenuC from "../components/InsertMenuC";
 import RightFloatingPanel from "../components/RightFloatingPanel";
+import PromptsPanel from "../components/PromptsPanel";
+import AutolinkerPanel from "../components/AutolinkerPanel";
 
 const options = [
     { label: "Character", value: "character" },
@@ -227,6 +229,30 @@ export default function ComponentPreview() {
                         onNavigate={(id) => console.log("Navigated to:", id)}
                         onCreateClick={() => console.log("Create clicked")}
                     />
+                </section>
+
+                {/* Prompts Panel */}
+                <section className="p-6 bg-[#080E18] flex rounded-xl border border-[#1E2D4A] overflow-hidden">
+                    <div className="w-full">
+                        <h2 className="mb-4 text-lg font-semibold">Prompts Panel (Right Rail)</h2>
+                        {/* Flex container to center it and simulate how it will sit in a right rail */}
+                        <div className="flex justify-start">
+                            <PromptsPanel 
+                                onPromptClick={(prompt) => console.log("User clicked prompt:", prompt.text)}
+                                onAddPrompt={(text, isDefault) => console.log(`User created prompt: "${text}" | Set to default: ${isDefault}`)}
+                            />
+                        </div>
+                    </div>
+                </section>
+
+                {/* Autolinker Panel */}
+                <section className="p-6 bg-[#080E18] flex rounded-xl border border-[#1E2D4A] overflow-hidden">
+                    <div className="w-full">
+                        <h2 className="mb-4 text-lg font-semibold">Autolinker Panel (Right Rail)</h2>
+                        <div className="flex justify-start">
+                            <AutolinkerPanel />
+                        </div>
+                    </div>
                 </section>
             </div>
         </div>
