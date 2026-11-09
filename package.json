@@ -6,7 +6,9 @@
     "start": "node backend/src/server.js",
     "dev": "nodemon backend/src/server.js",
     "build": "npm run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "types:local": "supabase gen types typescript --local > frontend/src/types/database.generated.ts",
+    "types:remote": "supabase gen types typescript --project-id xkrrvlwvkmygmxcrqauq > frontend/src/types/database.generated.ts"
   },
   "keywords": [],
   "author": "",
