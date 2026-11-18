@@ -4,6 +4,7 @@ venv/
 
 # Environment variables
 .env
+.env.test
 *.env
 
 # Build outputs

@@ -8,7 +8,10 @@
     "build": "vite build",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:fails": "vitest run --reporter=json --outputFile=.test-results.json --silent; node scripts/test-digest.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^3.8.1",
